@@ -4,16 +4,18 @@ from bs4 import BeautifulSoup
 
 from functions import (
     parse_card, get_vacancy_soup, parse_description, parse_tags, get_search_text,
-    find_keywords, find_roles, find_excluded_roles
+    find_keywords, find_excluded_roles
 )
-from keywords import TARGET_KEYWORDS, TARGET_ROLES, EXCLUDED_ROLES
+from keywords import TARGET_KEYWORDS, ROLE_TAXONOMY, EXCLUDED_ROLES
+from normalize import normalize_dataframe
+from classify import classify_vacancies
 
 
 base_url = "https://geekjob.ru/vacancies"
 
 vacancies = []
 
-for page in range(1, 6):
+for page in range(1, 10):
     url = f"{base_url}/{page}"
 
     response = requests.get(url)
@@ -43,23 +45,18 @@ for page in range(1, 6):
 
         vacancies.append(vacancy)
 
-for vacancy in vacancies:
-    search_text = get_search_text(vacancy)
-    for category, keywords in TARGET_KEYWORDS.items():
-        vacancy[category] = find_keywords(search_text, keywords)
+df_raw = pd.DataFrame(vacancies)
+df_raw = df_raw.replace(r"^\s*$",pd.NA, regex=True,)
+df_raw.to_csv("data/vacancies_raw.csv",index=False,encoding="utf-8-sig",)
 
-    vacancy["matched_roles"] = find_roles(vacancy["title"], TARGET_ROLES)
-    vacancy["excluded_roles"] = find_excluded_roles(vacancy["title"], EXCLUDED_ROLES)
+df = normalize_dataframe(df_raw)
+df.to_csv("data/vacancies.csv",index=False,encoding="utf-8-sig",)
 
-df = pd.DataFrame(vacancies)
-df = df.replace(r"^\s*$", pd.NA, regex=True)
-df.to_csv("vacancies.csv", index=False, encoding="utf-8-sig")
+df = pd.DataFrame(classify_vacancies(
+    df.to_dict("records"),
+    TARGET_KEYWORDS,
+    ROLE_TAXONOMY,
+    EXCLUDED_ROLES
+))
 
-for vacancy in vacancies:
-    if vacancy["matched_roles"] or vacancy["excluded_roles"]:
-        print(
-            vacancy["title"],
-            "| target:", vacancy["matched_roles"],
-            "| excluded:", vacancy["excluded_roles"]
-        )
-
+df.to_csv("data/vacancies_classify.csv",index=False,encoding="utf-8-sig",)

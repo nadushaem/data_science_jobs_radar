@@ -157,19 +157,29 @@ def get_search_text(vacancy):
     return " ".join(text_parts)
 
 
+# схлопываем пробелы вокруг / и - , чтобы "ai / ml" == "ai/ml"
+def _normalize_for_matching(text):
+    text = text.lower()
+    text = re.sub(r"\s*/\s*", "/", text)
+    text = re.sub(r"\s*-\s*", "-", text)
+    return text
+
+
 # поиск интересных должностей по ключевым словам
-def find_roles(title, roles):
+def find_roles(title, role_taxonomy):
     if not title:
         return []
 
-    title = title.lower()
+    title = _normalize_for_matching(title)
 
     found = []
-    for role in roles:
-        pattern = r"\b" + re.escape(role.lower()) + r"\b"
+    for canonical_role, aliases in role_taxonomy.items():
+        for alias in aliases:
+            pattern = r"\b" + re.escape(_normalize_for_matching(alias)) + r"\b"
 
-        if re.search(pattern, title):
-            found.append(role)
+            if re.search(pattern, title):
+                found.append(canonical_role)
+                break  # одна роль — не дублируем по разным алиасам
 
     return found
 

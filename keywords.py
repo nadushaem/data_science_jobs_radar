@@ -28,16 +28,8 @@ TARGET_KEYWORDS = {
         "гинеколог",
     ],
 
-    "data_science": [
-        "data science",
-        "data scientist",
-        "дата саентист",
-    ],
-
     "machine_learning": [
         "machine learning",
-        "machine learning engineer",
-        "ml engineer",
         "машинное обучение",
     ],
 
@@ -50,18 +42,45 @@ TARGET_KEYWORDS = {
     ],
 }
 
-TARGET_ROLES = [
-    "data scientist",
-    "ml engineer",
-    "machine learning engineer",
-    "research scientist",
-    "recommender systems",
-    "ml инженер",
-    "nlp engineer",
-    "исследователь данных",
-    "ai/ml engineer",
-    "ai/ml",
-]
+ROLE_TAXONOMY = {
+    "data_scientist": [
+        "data scientist",
+        "дата-сайентист",
+        "дата саентист",
+        "дата сайентист",
+        "исследователь данных",
+    ],
+
+    "ml_engineer": [
+        "ml engineer",
+        "ml-инженер",
+        "ml инженер",
+        "machine learning engineer",
+        "machine-learning engineer",
+        "инженер машинного обучения",
+        "мо-инженер",
+        "мо инженер",
+        "инженер мо",
+    ],
+
+    "ai_ml_engineer": [
+        "ai/ml engineer",
+        "ai/ml",
+    ],
+
+    "research_scientist": [
+        "research scientist",
+        "researcher in ai",
+        "researcher in ml",
+    ],
+
+    "nlp_engineer": [
+        "nlp engineer",
+        "nlp",
+        "нлп инженер",
+        "nlp инженер",
+    ],
+}
 
 EXCLUDED_ROLES = [
     "frontend",
