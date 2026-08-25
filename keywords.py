@@ -97,3 +97,11 @@ EXCLUDED_ROLES = [
     "ui/ux",
     "ux/ui",
 ]
+
+LEVEL_KEYWORDS = {
+    "junior": ["junior", "джуниор", "джун"],
+    "middle": ["middle", "миддл", "мидл"],
+    "senior": ["senior", "сеньор", "синьор", "старший", "ведущий"],
+    "lead": ["lead", "team lead", "тимлид", "техлид", "tech lead", "руководитель"],
+    "c_level": ["cto", "cio", "ciso", "c-level", "директор по"],
+}
