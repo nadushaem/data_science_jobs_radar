@@ -68,6 +68,22 @@ ROLE_TAXONOMY = {
         "ai/ml",
     ],
 
+    "data_steward": [
+        "data steward",
+        "дата стюард",
+        "дата-стюард",
+        "стюард данных",
+        "data quality analyst",
+        "data quality engineer",
+        "data quality specialist",
+        "специалист по качеству данных",
+        "аналитик по качеству данных",
+        "инженер по качеству данных",
+        "data governance analyst",
+        "data governance specialist",
+        "специалист по управлению данными",
+    ],
+
     "research_scientist": [
         "research scientist",
         "researcher in ai",
