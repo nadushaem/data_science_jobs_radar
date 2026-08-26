@@ -6,6 +6,7 @@ import pandas as pd
 import requests
 
 from functions import strip_html, guess_level
+from keywords import LEVEL_TAXONOMY
 
 
 SOURCE_NAME = "getmatch"
@@ -57,7 +58,7 @@ def _parse_offer(offer):
     primary_location = location_items[0] if location_items else {}
 
     skills = [
-        skill["name"]
+        skill["name"].lower()
         for skill in offer.get("skills_objects") or []
         if skill.get("name")
     ]
@@ -86,7 +87,7 @@ def _parse_offer(offer):
         "description": strip_html(offer.get("offer_description")),
         "skills": skills,
         "source": SOURCE_NAME,
-        "level": guess_level(offer.get("position")),
+        "level": guess_level(offer.get("position"), LEVEL_TAXONOMY),
     }
 
 

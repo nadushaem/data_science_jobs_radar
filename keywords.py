@@ -98,10 +98,101 @@ EXCLUDED_ROLES = [
     "ux/ui",
 ]
 
-LEVEL_KEYWORDS = {
-    "junior": ["junior", "джуниор", "джун"],
-    "middle": ["middle", "миддл", "мидл"],
-    "senior": ["senior", "сеньор", "синьор", "старший", "ведущий"],
-    "lead": ["lead", "team lead", "тимлид", "техлид", "tech lead", "руководитель"],
-    "c_level": ["cto", "cio", "ciso", "c-level", "директор по"],
+LEVEL_TAXONOMY = {
+    "Стажер": [
+        "стажер",
+        "стажёр",
+        "стажировка",
+        "intern",
+        "internship",
+        "trainee",
+    ],
+
+    "Джуниор": [
+        "junior",
+        "джуниор",
+        "джун",
+        "младший",
+    ],
+
+    "Миддл": [
+        "middle",
+        "миддл",
+        "мидл",
+    ],
+
+    "Сеньор": [
+        "senior",
+        "сеньор",
+        "синьор",
+        "старший",
+        "ведущий",
+        "principal",
+        "staff",
+    ],
+
+    "Тимлид/Руководитель группы": [
+        "team lead",
+        "tech lead",
+        "техлид",
+        "тимлид",
+        "руководитель группы",
+        "руководитель команды",
+        "lead",
+    ],
+
+    "Руководитель отдела/подразделения": [
+        "head of",
+        "руководитель отдела",
+        "руководитель направления",
+        "руководитель департамента",
+        "начальник отдела",
+        "engineering manager",
+    ],
+
+    "Директор": [
+        "директор",
+        "director",
+        "cto",
+        "cio",
+        "ciso",
+        "cmo",
+        "cdo",
+        "chief",
+        "ceo",
+    ],
+
+    "VP": [
+        "vp",
+        "vice president",
+        "вице-президент",
+    ],
+
+    "Архитектор": [
+        "архитектор",
+        "architect",
+    ],
+
+    "Консультант": [
+        "консультант",
+        "consultant",
+    ],
 }
+
+
+# базовый словарь технологий/скиллов для поиска в тексте описания вакансии
+# (пополняется по мере находок — сейчас взят из реальных skills_objects getmatch)
+SKILLS_VOCABULARY = [
+    "python", "java", "kotlin", "go", "golang", "c++", "c#", ".net",
+    "javascript", "typescript", "php", "ruby", "scala", "rust",
+    "sql", "postgresql", "mysql", "clickhouse", "mongodb", "redis",
+    "kafka", "rabbitmq", "airflow",
+    "pandas", "numpy", "pytorch", "tensorflow", "scikit-learn", "sklearn",
+    "catboost", "xgboost", "lightgbm",
+    "docker", "kubernetes", "ci/cd", "linux", "grafana", "prometheus",
+    "aws", "gcp", "azure",
+    "nlp", "llm", "rag", "computer vision", "deep learning",
+    "machine learning", "data science",
+    "react", "vue", "angular", "flutter", "kotlin multiplatform",
+    "hadoop", "spark", "hive",
+]

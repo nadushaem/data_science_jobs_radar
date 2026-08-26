@@ -6,6 +6,9 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from functions import find_keywords, guess_level
+from keywords import SKILLS_VOCABULARY, LEVEL_TAXONOMY
+
 
 SOURCE_NAME = "geekjob"
 BASE_URL = "https://geekjob.ru/vacancies"
@@ -268,6 +271,10 @@ def fetch_vacancies(days=7, max_pages=30):
                 vacancy["specialization"] = None
                 vacancy["industry"] = None
                 vacancy["level"] = None
+
+            vacancy["skills"] = find_keywords(vacancy.get("description"), SKILLS_VOCABULARY)
+            if not vacancy.get("level"):
+                vacancy["level"] = guess_level(vacancy["title"], LEVEL_TAXONOMY)
 
             salary_data = parse_salary(vacancy.pop("salary_text", None))
             vacancy.update(salary_data)

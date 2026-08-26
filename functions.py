@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import re
-from keywords import LEVEL_KEYWORDS
 
 # поиск ключевых слов
 def find_keywords(text, keywords):
@@ -86,16 +85,27 @@ def get_search_text(vacancy):
     return " ".join(text_parts)
 
 
-# грубая оценка уровня по названию вакансии (для источников без готового тега)
-def guess_level(title):
+# грубая оценка грейда по названию вакансии (для источников без готового тега)
+def guess_level(title, level_taxonomy):
     if not title:
         return None
 
-    title = title.lower()
-    found = [
-        level
-        for level, keywords in LEVEL_KEYWORDS.items()
-        if any(keyword in title for keyword in keywords)
-    ]
+    normalized = _normalize_for_matching(title)
+    found = []
+
+    for grade, aliases in level_taxonomy.items():
+        for alias in aliases:
+            pattern = r"\b" + re.escape(_normalize_for_matching(alias)) + r"\b"
+
+            if not re.search(pattern, normalized):
+                continue
+
+            # "lead" — самый шумный алиас: ловит "Lead Generation Manager",
+            # который к грейду вообще не относится
+            if alias == "lead" and "generation" in normalized:
+                continue
+
+            found.append(grade)
+            break
 
     return found or None
