@@ -3,6 +3,15 @@ import json
 import time
 import requests
 
+from history import (
+    load_sent_vacancies,
+    save_sent_vacancies,
+    prune_sent_vacancies,
+    get_new_vacancies_for_subscriber,
+    mark_as_sent,
+)
+from summary import build_summary_messages
+
 
 TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"
 SUBSCRIBERS_FILE = "data/subscribers.json"
@@ -95,8 +104,9 @@ def poll_updates():
                 subscribers.add(chat_id)
                 send_telegram_message(
                     chat_id,
-                    "Вы подписались на сводку вакансий 🎉\n"
+                    "Вы подписались на сводку вакансий!\n"
                     "Отправляется автоматически каждые 4 часа.\n"
+                    "Сводка придет, когда появятся новые вакансии.\n"
                     "Отписаться — команда /stop",
                 )
 
@@ -108,18 +118,34 @@ def poll_updates():
     _save_offset(offset)
 
 
-# рассылаем сводку всем подписчикам
-def send_summary(messages):
+# рассылаем сводку подписчикам — каждому только те вакансии,
+# которые лично ему ещё не отправляли
+def send_summary(target_df):
     subscribers = load_subscribers()
 
     if not subscribers:
         print("нет подписчиков — рассылать некому")
         return
 
+    sent = prune_sent_vacancies(load_sent_vacancies())
+
     for chat_id in subscribers:
-        for message in messages:
-            try:
+        new_vacancies = get_new_vacancies_for_subscriber(target_df, sent, chat_id)
+
+        if new_vacancies.empty:
+            continue
+
+        is_new_subscriber = str(chat_id) not in sent
+
+        messages = build_summary_messages(new_vacancies, is_new_subscriber)
+
+        try:
+            for message in messages:
                 send_telegram_message(chat_id, message)
                 time.sleep(1)  # rate limit telegram
-            except Exception as error:
-                print(f"не удалось отправить {chat_id}: {error}")
+
+            sent = mark_as_sent(sent, chat_id, new_vacancies["url"].dropna())
+            save_sent_vacancies(sent)
+
+        except Exception as error:
+            print(f"не удалось отправить {chat_id}: {error}")

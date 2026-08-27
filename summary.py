@@ -1,4 +1,8 @@
-import pandas as pd
+def _capitalize_first(text):
+    if not text:
+        return text
+
+    return text[0].upper() + text[1:]
 
 
 # грейд может быть списком (["Миддл"]), строкой или None —
@@ -15,9 +19,10 @@ def _format_level(value):
 
 # форматируем одну вакансию: должность, компания, грейд, ссылка
 def _format_vacancy(row, index):
-    lines = [f"{index}. *{row.get('title') or '—'}*"]
+    title = _capitalize_first(row.get("title")) or "—"
+    lines = [f"{index}. *{title}*"]
 
-    company = row.get("company")
+    company = _capitalize_first(row.get("company"))
     if company:
         lines.append(f"🏢 {company}")
 
@@ -29,18 +34,18 @@ def _format_vacancy(row, index):
     return "\n".join(lines)
 
 
-# собираем список сообщений (список, а не секции — recsys/медицина больше не делим)
-def build_summary_messages(df, days=7, max_length=3500):
-    df = df[df["is_target"]]
-
-    intro = f"📅 Сводка вакансий за последние {days} дней ({len(df)})"
+# собираем список сообщений
+def build_summary_messages(target_df, is_new_subscriber, days=7, max_length=3500):
+    if is_new_subscriber:
+        intro = f"📅 Сводка вакансий за последние {days} дней ({len(target_df)})"
+    else:
+        intro = f"📅 Есть новые вакансии! ({len(target_df)})"
 
     items = [
         _format_vacancy(row, i + 1)
-        for i, row in enumerate(df.to_dict("records"))
+        for i, row in enumerate(target_df.to_dict("records"))
     ]
 
-    # разбиваем на сообщения по max_length, не разрывая вакансию пополам
     messages = []
     current = intro
 

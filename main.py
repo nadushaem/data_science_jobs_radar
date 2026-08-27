@@ -39,16 +39,16 @@ def run():
     df = pd.DataFrame(classify_vacancies(df.to_dict("records"), TARGET_KEYWORDS, ROLE_TAXONOMY, EXCLUDED_ROLES))
     df.to_csv("data/vacancies_classify.csv", index=False, encoding="utf-8-sig")
 
-    messages = build_summary_messages(df, days=7)
+    target_df = df[df["is_target"]]
 
     try:
-        send_summary(messages)
+        send_summary(target_df)
     except Exception as error:
         print(f"Не удалось отправить сводку в telegram: {error}")
 
 
 if __name__ == "__main__":
-    run()  # первый запуск сразу, не ждём 4 часа
+    run()
 
     scheduler = BlockingScheduler()
     scheduler.add_job(run, "interval", hours=4)
