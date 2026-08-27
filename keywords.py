@@ -28,17 +28,17 @@ TARGET_KEYWORDS = {
         "гинеколог",
     ],
 
-    "machine_learning": [
-        "machine learning",
-        "машинное обучение",
-    ],
-
-    "recsys": [
-        "recommender system",
-        "recommender systems",
-        "recommendation system",
-        "рекомендательн",
-        "система рекомендаций",
+    # временно для проверки — вакансий в медицине почти нет,
+    # а e-commerce встречается часто, удобно тестировать пайплайн целиком
+    "ecommerce": [
+        "e-commerce",
+        "ecommerce",
+        "интернет-магазин",
+        "интернет магазин",
+        "маркетплейс",
+        "marketplace",
+        "онлайн-ритейл",
+        "online retail",
     ],
 }
 
