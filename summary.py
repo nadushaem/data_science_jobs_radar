@@ -1,6 +1,6 @@
 import pandas as pd
 
-from keywords import INDUSTRY_LABELS
+from keywords import INDUSTRY_LABELS, ROLE_LABELS
 
 
 def _industries_title(industries):
@@ -9,8 +9,14 @@ def _industries_title(industries):
     return ", ".join(INDUSTRY_LABELS.get(key, key) for key in industries)
 
 
-# вакансия попадает под фильтр, если хотя бы в одной из выбранных сфер
-# нашлись ключевые слова (см. classify.py — там vacancy[category] = список слов)
+def _roles_title(roles):
+    if not roles:
+        return "все роли"
+    return ", ".join(ROLE_LABELS.get(key, key) for key in roles)
+
+
+# вакансия попадает под фильтр по сфере, если хотя бы в одной из
+# выбранных сфер нашлись ключевые слова (см. classify.py)
 def _industry_mask(df, industries):
     columns = [key for key in industries if key in df.columns]
 
@@ -20,14 +26,29 @@ def _industry_mask(df, industries):
     return df[columns].apply(lambda col: col.map(bool)).any(axis=1)
 
 
+# вакансия попадает под фильтр по роли, если matched_roles пересекается
+# с выбранными ролями (matched_roles — список canonical ролей, см. classify.py)
+def _role_mask(df, roles):
+    if "matched_roles" not in df.columns:
+        return pd.Series(True, index=df.index)
+
+    wanted = set(roles)
+    return df["matched_roles"].map(
+        lambda matched: bool(wanted.intersection(matched or []))
+    )
+
+
 # отдельная функция, чтобы фильтровать df один раз и переиспользовать
 # результат и для отправки, и для пометки "отправлено" в истории
-def filter_by_industries(df, industries):
+def filter_vacancies(df, industries=None, roles=None):
     if "is_target" in df.columns:
         df = df[df["is_target"]]
 
     if industries:
         df = df[_industry_mask(df, industries)]
+
+    if roles:
+        df = df[_role_mask(df, roles)]
 
     return df
 
@@ -38,8 +59,6 @@ def _capitalize_first(text):
     return text[0].upper() + text[1:]
 
 
-# грейд может быть списком (["Миддл"]), строкой или None —
-# приводим к читаемому виду, если пусто — явно пишем "не указан"
 def _format_level(value):
     if isinstance(value, list) and value:
         return ", ".join(value)
@@ -48,7 +67,6 @@ def _format_level(value):
     return "не указан"
 
 
-# форматируем одну вакансию: должность, компания, грейд, ссылка
 def _format_vacancy(row, index):
     title = _capitalize_first(row.get("title")) or "—"
     lines = [f"{index}. *{title}*"]
@@ -65,11 +83,11 @@ def _format_vacancy(row, index):
     return "\n".join(lines)
 
 
-# ВАЖНО: df на входе уже должен быть отфильтрован по сферам
-# (см. filter_by_industries) — здесь мы только собираем текст сообщений
+# ВАЖНО: df на входе уже должен быть отфильтрован через filter_vacancies —
+# здесь мы только собираем текст сообщений
 def build_summary_messages(df, is_new_subscriber=False, industries=None,
-                            days=7, max_length=3500):
-    scope = _industries_title(industries)
+                            roles=None, days=7, max_length=3500):
+    scope = f"{_industries_title(industries)} · {_roles_title(roles)}"
 
     if is_new_subscriber:
         intro = f"📅 Вакансии за последние {days} дней ({len(df)}) — {scope}"
@@ -81,7 +99,6 @@ def build_summary_messages(df, is_new_subscriber=False, industries=None,
         for i, row in enumerate(df.to_dict("records"))
     ]
 
-    # разбиваем на сообщения по max_length, не разрывая вакансию пополам
     messages = []
     current = intro
 

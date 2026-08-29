@@ -11,12 +11,14 @@ def load_subscribers():
     with open(SUBSCRIBERS_FILE, "r", encoding="utf-8") as file:
         raw = json.load(file)
 
-    # старый формат — просто список chat_id, конвертируем на лету
     if isinstance(raw, list):
-        return {int(chat_id): {"industries": []} for chat_id in raw}
+        return {int(chat_id): {"industries": [], "roles": []} for chat_id in raw}
 
     return {
-        int(chat_id): {"industries": data.get("industries") or []}
+        int(chat_id): {
+            "industries": data.get("industries") or [],
+            "roles": data.get("roles") or [],
+        }
         for chat_id, data in raw.items()
     }
 
@@ -37,3 +39,11 @@ def get_industries(subscribers, chat_id):
 
 def set_industries(subscribers, chat_id, industries):
     subscribers[chat_id]["industries"] = sorted(set(industries))
+
+
+def get_roles(subscribers, chat_id):
+    return subscribers[chat_id].get("roles") or []
+
+
+def set_roles(subscribers, chat_id, roles):
+    subscribers[chat_id]["roles"] = sorted(set(roles))

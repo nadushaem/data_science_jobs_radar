@@ -11,12 +11,12 @@ TARGET_KEYWORDS = {
         "fertility", "репродуктив", "гинеколог",
     ],
     "fintech": [
-        "fintech", "финтех", "финансовые технологии", "necessary",
-        "платежные системы", "payments", "necessarybank",
+        "fintech", "финтех", "финансовые технологии", "платежный сервис",
+        "платежные системы", "payments", "банкинг",
     ],
     "edtech": [
         "edtech", "эдтех", "образовательные технологии",
-        "онлайн-образование", "online education",
+        "онлайн-образование", "online education", "education",
     ],
     "hrtech": [
         "hrtech", "hr tech", "hr-tech", "кадровые технологии", "recruiting tech",
@@ -38,8 +38,6 @@ TARGET_KEYWORDS = {
     ],
 }
 
-# человекочитаемые названия сфер — используются и в кнопках бота,
-# и в подписи сводки. порядок словаря = порядок кнопок в /industries
 INDUSTRY_LABELS = {
     "healthtech": "Healthtech",
     "medtech": "Medtech",
@@ -53,6 +51,8 @@ INDUSTRY_LABELS = {
     "ecommerce": "E-commerce",
 }
 
+# человекочитаемые названия сфер — используются и в кнопках бота,
+# и в подписи сводки. порядок словаря = порядок кнопок в /industries
 ROLE_TAXONOMY = {
     "data_scientist": [
         "data scientist",
@@ -79,7 +79,15 @@ ROLE_TAXONOMY = {
         "ai/ml",
     ],
 
-    "data_steward": [
+    "data_governance": [
+        "data governance analyst",
+        "data governance specialist",
+        "специалист по управлению данными",
+        "аналитик по управлению данными",
+        "data governance engineer",
+    ],
+
+    "data_quality": [
         "data steward",
         "дата стюард",
         "дата-стюард",
@@ -90,9 +98,6 @@ ROLE_TAXONOMY = {
         "специалист по качеству данных",
         "аналитик по качеству данных",
         "инженер по качеству данных",
-        "data governance analyst",
-        "data governance specialist",
-        "специалист по управлению данными",
     ],
 
     "research_scientist": [
@@ -107,6 +112,42 @@ ROLE_TAXONOMY = {
         "нлп инженер",
         "nlp инженер",
     ],
+
+    "cv_engineer": [
+        "cv engineer",
+        "computer vision engineer",
+        "computer-vision engineer",
+        "инженер компьютерного зрения",
+        "cv-инженер",
+        "cv инженер",
+    ],
+
+    "data_analyst": [
+        "data analyst",
+        "дата аналитик",
+        "дата-аналитик",
+        "аналитик данных",
+    ],
+
+    "data_engineer": [
+        "data engineer",
+        "дата инженер",
+        "дата-инженер",
+        "инженер данных",
+    ],
+}
+
+ROLE_LABELS = {
+    "data_scientist": "Data Scientist",
+    "ml_engineer": "ML Engineer",
+    "ai_ml_engineer": "AI/ML Engineer",
+    "data_engineer": "Data Engineer",
+    "data_analyst": "Data Analyst",
+    "cv_engineer": "CV Engineer",
+    "nlp_engineer": "NLP Engineer",
+    "research_scientist": "Research Scientist",
+    "data_governance": "Data Governance",
+    "data_quality": "Data Quality",
 }
 
 EXCLUDED_ROLES = [
