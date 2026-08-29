@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import requests
 
-from functions import strip_html, guess_level
+from parsing import strip_html, guess_level
 from keywords import LEVEL_TAXONOMY
 
 

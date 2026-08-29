@@ -1,4 +1,4 @@
-from functions import get_search_text, find_keywords, find_roles, find_excluded_roles
+from parsing import get_search_text, find_keywords, find_roles, find_excluded_roles
 
 
 def classify_vacancy(vacancy, target_keywords, role_taxonomy, excluded_roles):

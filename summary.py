@@ -1,7 +1,40 @@
+import pandas as pd
+
+from keywords import INDUSTRY_LABELS
+
+
+def _industries_title(industries):
+    if not industries:
+        return "все сферы"
+    return ", ".join(INDUSTRY_LABELS.get(key, key) for key in industries)
+
+
+# вакансия попадает под фильтр, если хотя бы в одной из выбранных сфер
+# нашлись ключевые слова (см. classify.py — там vacancy[category] = список слов)
+def _industry_mask(df, industries):
+    columns = [key for key in industries if key in df.columns]
+
+    if not columns:
+        return pd.Series(True, index=df.index)
+
+    return df[columns].apply(lambda col: col.map(bool)).any(axis=1)
+
+
+# отдельная функция, чтобы фильтровать df один раз и переиспользовать
+# результат и для отправки, и для пометки "отправлено" в истории
+def filter_by_industries(df, industries):
+    if "is_target" in df.columns:
+        df = df[df["is_target"]]
+
+    if industries:
+        df = df[_industry_mask(df, industries)]
+
+    return df
+
+
 def _capitalize_first(text):
     if not text:
         return text
-
     return text[0].upper() + text[1:]
 
 
@@ -10,10 +43,8 @@ def _capitalize_first(text):
 def _format_level(value):
     if isinstance(value, list) and value:
         return ", ".join(value)
-
     if isinstance(value, str) and value:
         return value
-
     return "не указан"
 
 
@@ -34,18 +65,23 @@ def _format_vacancy(row, index):
     return "\n".join(lines)
 
 
-# собираем список сообщений
-def build_summary_messages(target_df, is_new_subscriber, days=7, max_length=3500):
+# ВАЖНО: df на входе уже должен быть отфильтрован по сферам
+# (см. filter_by_industries) — здесь мы только собираем текст сообщений
+def build_summary_messages(df, is_new_subscriber=False, industries=None,
+                            days=7, max_length=3500):
+    scope = _industries_title(industries)
+
     if is_new_subscriber:
-        intro = f"📅 Сводка вакансий за последние {days} дней ({len(target_df)})"
+        intro = f"📅 Вакансии за последние {days} дней ({len(df)}) — {scope}"
     else:
-        intro = f"📅 Есть новые вакансии! ({len(target_df)})"
+        intro = f"🆕 Новые вакансии ({len(df)}) — {scope}"
 
     items = [
         _format_vacancy(row, i + 1)
-        for i, row in enumerate(target_df.to_dict("records"))
+        for i, row in enumerate(df.to_dict("records"))
     ]
 
+    # разбиваем на сообщения по max_length, не разрывая вакансию пополам
     messages = []
     current = intro
 

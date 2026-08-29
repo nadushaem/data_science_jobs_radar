@@ -58,3 +58,9 @@ def mark_as_sent(sent, chat_id, urls):
     chat_sent.update({url: now_iso for url in urls if url})
 
     return sent
+
+# сбрасываем историю отправленных вакансий конкретному подписчику —
+# нужно при смене сфер, чтобы под новый фильтр видео было "с нуля"
+def reset_subscriber_history(sent, chat_id):
+    sent.pop(str(chat_id), None)
+    return sent

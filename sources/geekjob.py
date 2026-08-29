@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from functions import find_keywords, guess_level
+from parsing import find_keywords, guess_level
 from keywords import SKILLS_VOCABULARY, LEVEL_TAXONOMY
 
 

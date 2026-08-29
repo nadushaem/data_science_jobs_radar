@@ -1,45 +1,56 @@
 TARGET_KEYWORDS = {
     "healthtech": [
-        "healthtech",
-        "health tech",
-        "digital health",
-        "digital healthcare",
-        "медицина",
-        "медицин",
-        "здравоохран",
-        "healthcare",
+        "healthtech", "health tech", "digital health", "digital healthcare",
+        "медицина", "медицин", "здравоохран", "healthcare",
     ],
-
     "medtech": [
-        "medtech",
-        "med tech",
-        "медтех",
-        "медицинское оборудование",
-        "medical device",
+        "medtech", "med tech", "медтех", "медицинское оборудование", "medical device",
     ],
-
     "femtech": [
-        "femtech",
-        "женское здоровье",
-        "women's health",
-        "women health",
-        "fertility",
-        "репродуктив",
-        "гинеколог",
+        "femtech", "женское здоровье", "women's health", "women health",
+        "fertility", "репродуктив", "гинеколог",
     ],
-
-    # временно для проверки — вакансий в медицине почти нет,
-    # а e-commerce встречается часто, удобно тестировать пайплайн целиком
+    "fintech": [
+        "fintech", "финтех", "финансовые технологии", "necessary",
+        "платежные системы", "payments", "necessarybank",
+    ],
+    "edtech": [
+        "edtech", "эдтех", "образовательные технологии",
+        "онлайн-образование", "online education",
+    ],
+    "hrtech": [
+        "hrtech", "hr tech", "hr-tech", "кадровые технологии", "recruiting tech",
+    ],
+    "adtech": [
+        "adtech", "ad tech", "martech", "mar tech",
+        "рекламные технологии", "programmatic",
+    ],
+    "gamedev": [
+        "gamedev", "game dev", "геймдев", "игровая индустрия", "games industry",
+    ],
+    "logistics": [
+        "logistics", "логистика", "логистическая", "supply chain",
+        "cargo", "delivery tech",
+    ],
     "ecommerce": [
-        "e-commerce",
-        "ecommerce",
-        "интернет-магазин",
-        "интернет магазин",
-        "маркетплейс",
-        "marketplace",
-        "онлайн-ритейл",
-        "online retail",
+        "e-commerce", "ecommerce", "интернет-магазин", "интернет магазин",
+        "маркетплейс", "marketplace", "онлайн-ритейл", "online retail",
     ],
+}
+
+# человекочитаемые названия сфер — используются и в кнопках бота,
+# и в подписи сводки. порядок словаря = порядок кнопок в /industries
+INDUSTRY_LABELS = {
+    "healthtech": "Healthtech",
+    "medtech": "Medtech",
+    "femtech": "Femtech",
+    "fintech": "Fintech",
+    "edtech": "Edtech",
+    "hrtech": "HRtech",
+    "adtech": "Adtech/Martech",
+    "gamedev": "Gamedev",
+    "logistics": "Логистика",
+    "ecommerce": "E-commerce",
 }
 
 ROLE_TAXONOMY = {

@@ -6,7 +6,6 @@ from keywords import TARGET_KEYWORDS, EXCLUDED_ROLES, ROLE_TAXONOMY
 from normalize import normalize_dataframe
 from classify import classify_vacancies
 from dedupe import deduplicate_vacancies
-from summary import build_summary_messages
 from telegram_bot import send_summary, poll_updates
 
 from dotenv import load_dotenv
@@ -40,6 +39,8 @@ def run():
     df.to_csv("data/vacancies_classify.csv", index=False, encoding="utf-8-sig")
 
     target_df = df[df["is_target"]]
+
+    target_df.to_pickle("data/vacancies_latest.pkl")
 
     try:
         send_summary(target_df)
