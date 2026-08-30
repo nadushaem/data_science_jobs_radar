@@ -2,6 +2,7 @@ from keywords import INDUSTRY_LABELS, ROLE_LABELS
 
 INDUSTRIES_BUTTON_TEXT = "🎯 Выбрать сферы"
 ROLES_BUTTON_TEXT = "🧩 Выбрать роли"
+TOP_SKILLS_BUTTON_TEXT = "📊 Топ навыков"
 
 
 def industries_text(industries):
@@ -59,6 +60,7 @@ def build_main_keyboard():
     return {
         "keyboard": [
             [{"text": INDUSTRIES_BUTTON_TEXT}, {"text": ROLES_BUTTON_TEXT}],
+            [{"text": TOP_SKILLS_BUTTON_TEXT}],   # новая строка
         ],
         "resize_keyboard": True,
         "is_persistent": True,

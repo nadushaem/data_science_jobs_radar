@@ -11,13 +11,15 @@ from subscribers import (
 )
 from keyboards import (
     build_industries_keyboard, build_roles_keyboard, build_main_keyboard,
-    industries_text, roles_text, INDUSTRIES_BUTTON_TEXT, ROLES_BUTTON_TEXT,
+    industries_text, roles_text, INDUSTRIES_BUTTON_TEXT,
+    ROLES_BUTTON_TEXT, TOP_SKILLS_BUTTON_TEXT,
 )
 from history import (
     load_sent_vacancies, save_sent_vacancies, prune_sent_vacancies,
     get_new_vacancies_for_subscriber, mark_as_sent, reset_subscriber_history,
 )
 from summary import build_summary_messages, filter_vacancies
+from stats import build_top_skills_message
 
 
 OFFSET_FILE = "data/telegram_offset.txt"
@@ -145,6 +147,19 @@ def _send_filter_menu(chat_id, subscribers, filter_key):
     )
 
 
+# показываем топ навыков с учётом текущих фильтров подписчика (сферы/роли)
+def _cmd_top_skills(chat_id, subscribers):
+    if chat_id not in subscribers:
+        send_message(chat_id, "Сначала подпишитесь: /start")
+        return
+
+    industries = get_industries(subscribers, chat_id)
+    roles = get_roles(subscribers, chat_id)
+
+    message = build_top_skills_message(industries, roles)
+    send_message(chat_id, message)
+
+
 TEXT_COMMANDS = {
     "/start": _cmd_start,
     "/stop": _cmd_stop,
@@ -152,6 +167,8 @@ TEXT_COMMANDS = {
     INDUSTRIES_BUTTON_TEXT: lambda chat_id, subs: _send_filter_menu(chat_id, subs, "ind"),
     "/roles": lambda chat_id, subs: _send_filter_menu(chat_id, subs, "role"),
     ROLES_BUTTON_TEXT: lambda chat_id, subs: _send_filter_menu(chat_id, subs, "role"),
+    "/top_skills": _cmd_top_skills,
+    TOP_SKILLS_BUTTON_TEXT: _cmd_top_skills
 }
 
 

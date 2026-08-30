@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import requests
+from collections import Counter
 
 from keywords import TARGET_KEYWORDS
 
@@ -137,3 +138,52 @@ def append_stats(new_stats_df):
     combined.to_pickle(STATS_FILE)
 
     return combined
+
+
+# вакансия попадает в подсчёт, если хотя бы одна из выбранных сфер = True.
+# если сферы не выбраны — берём все вакансии (аналогично summary.py)
+def _industry_mask(df, industries):
+    columns = [key for key in industries if key in df.columns]
+    if not columns:
+        return pd.Series(True, index=df.index)
+    return df[columns].any(axis=1)
+
+
+# вакансия попадает в подсчёт, если matched_roles пересекается с выбранными ролями
+def _role_mask(df, roles):
+    if not roles or "matched_roles" not in df.columns:
+        return pd.Series(True, index=df.index)
+    wanted = set(roles)
+    return df["matched_roles"].map(lambda matched: bool(wanted.intersection(matched or [])))
+
+
+# считаем топ-N навыков по архиву статистики с учётом фильтров подписчика
+def top_skills(industries=None, roles=None, top_n=5):
+    df = load_stats()
+    if df.empty:
+        return []
+
+    mask = _industry_mask(df, industries or []) & _role_mask(df, roles or [])
+    filtered = df[mask]
+
+    counter = Counter()
+    for skills in filtered["skills"].dropna():
+        if isinstance(skills, list):
+            counter.update(skills)
+
+    return counter.most_common(top_n)
+
+
+# собираем текст сообщения для бота — отдельно от подсчёта,
+# чтобы top_skills можно было переиспользовать и без телеграма
+def build_top_skills_message(industries=None, roles=None, top_n=5):
+    ranked = top_skills(industries, roles, top_n)
+
+    if not ranked:
+        return "Пока не набралось данных для статистики по этому фильтру 🤷"
+
+    lines = [f"🏆 *Топ-{len(ranked)} навыков в вакансиях*"]
+    for i, (skill, count) in enumerate(ranked, 1):
+        lines.append(f"{i}. {skill}: {count}")
+
+    return "\n".join(lines)
