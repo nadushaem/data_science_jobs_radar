@@ -7,6 +7,7 @@ from normalize import normalize_dataframe
 from classify import classify_vacancies
 from dedupe import deduplicate_vacancies
 from telegram_bot import send_summary, poll_updates
+from stats import build_stats_dataset, append_stats, get_exchange_rates
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -37,6 +38,13 @@ def run():
 
     df = pd.DataFrame(classify_vacancies(df.to_dict("records"), TARGET_KEYWORDS, ROLE_TAXONOMY, EXCLUDED_ROLES))
     df.to_csv("data/vacancies_classify.csv", index=False, encoding="utf-8-sig")
+
+    try:
+        rates = get_exchange_rates()
+        stats_df = build_stats_dataset(df, rates)
+        append_stats(stats_df)
+    except Exception as error:
+        print(f"не удалось обновить архив статистики: {error}")
 
     target_df = df[df["is_target"]]
 
