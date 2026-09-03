@@ -18,6 +18,7 @@ def _api_url(method):
 def get_updates(offset):
     response = requests.get(
         _api_url("getUpdates"), params={"offset": offset, "timeout": 5},
+        timeout=15,
     )
     response.raise_for_status()
     return response.json().get("result", [])
