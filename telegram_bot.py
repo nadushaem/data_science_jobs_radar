@@ -166,33 +166,6 @@ def _cmd_top_skills(chat_id, subscribers):
     send_message(chat_id, message)
 
 
-TEXT_COMMANDS = {
-    "/start": _cmd_start,
-    "/stop": _cmd_stop,
-    "/industries": lambda chat_id, subs: _send_filter_menu(chat_id, subs, "ind"),
-    INDUSTRIES_BUTTON_TEXT: lambda chat_id, subs: _send_filter_menu(chat_id, subs, "ind"),
-    "/roles": lambda chat_id, subs: _send_filter_menu(chat_id, subs, "role"),
-    ROLES_BUTTON_TEXT: lambda chat_id, subs: _send_filter_menu(chat_id, subs, "role"),
-    "/top_skills": _cmd_top_skills,
-    TOP_SKILLS_BUTTON_TEXT: _cmd_top_skills,
-    "/view_all": _cmd_view_all,
-    VIEW_ALL_BUTTON_TEXT: _cmd_view_all,
-    UNSUBSCRIBE_BUTTON_TEXT: _cmd_stop,
-}
-
-
-def _handle_message(message, subscribers):
-    text = (message.get("text") or "").strip()
-    chat_id = (message.get("chat") or {}).get("id")
-
-    if not chat_id:
-        return
-
-    handler = TEXT_COMMANDS.get(text)
-    if handler:
-        handler(chat_id, subscribers)
-
-
 def _cmd_view_all(chat_id, subscribers):
     if chat_id not in subscribers:
         send_message(chat_id, "Сначала подпишитесь: /start")
@@ -222,6 +195,33 @@ def _cmd_view_all(chat_id, subscribers):
     for message in messages:
         send_message(chat_id, message)
         time.sleep(1)
+
+
+TEXT_COMMANDS = {
+    "/start": _cmd_start,
+    "/stop": _cmd_stop,
+    "/industries": lambda chat_id, subs: _send_filter_menu(chat_id, subs, "ind"),
+    INDUSTRIES_BUTTON_TEXT: lambda chat_id, subs: _send_filter_menu(chat_id, subs, "ind"),
+    "/roles": lambda chat_id, subs: _send_filter_menu(chat_id, subs, "role"),
+    ROLES_BUTTON_TEXT: lambda chat_id, subs: _send_filter_menu(chat_id, subs, "role"),
+    "/top_skills": _cmd_top_skills,
+    TOP_SKILLS_BUTTON_TEXT: _cmd_top_skills,
+    "/view_all": _cmd_view_all,
+    VIEW_ALL_BUTTON_TEXT: _cmd_view_all,
+    UNSUBSCRIBE_BUTTON_TEXT: _cmd_stop,
+}
+
+
+def _handle_message(message, subscribers):
+    text = (message.get("text") or "").strip()
+    chat_id = (message.get("chat") or {}).get("id")
+
+    if not chat_id:
+        return
+
+    handler = TEXT_COMMANDS.get(text)
+    if handler:
+        handler(chat_id, subscribers)
 
 
 # === callback-кнопки выбора сфер/ролей ===

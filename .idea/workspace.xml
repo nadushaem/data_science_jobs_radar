@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Update send_message(), edit_message_reply_markup(), answer_callback_query()  to protect against freezing">
+    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Add two buttons: show all vacancies and unsubscribe">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/keyboards.py" beforeDir="false" afterPath="$PROJECT_DIR$/keyboards.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/summary.py" beforeDir="false" afterPath="$PROJECT_DIR$/summary.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/telegram_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/telegram_bot.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -282,7 +280,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788419202408</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Add two buttons: show all vacancies and unsubscribe">
+      <option name="closed" value="true" />
+      <created>1788506429408</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1788506429408</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -311,6 +317,7 @@
     <MESSAGE value="Update get_updates() to protect against freezing" />
     <MESSAGE value="Initial commit" />
     <MESSAGE value="Update send_message(), edit_message_reply_markup(), answer_callback_query()  to protect against freezing" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update send_message(), edit_message_reply_markup(), answer_callback_query()  to protect against freezing" />
+    <MESSAGE value="Add two buttons: show all vacancies and unsubscribe" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add two buttons: show all vacancies and unsubscribe" />
   </component>
 </project>
