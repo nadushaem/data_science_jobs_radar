@@ -12,7 +12,8 @@ from subscribers import (
 from keyboards import (
     build_industries_keyboard, build_roles_keyboard, build_main_keyboard,
     industries_text, roles_text, INDUSTRIES_BUTTON_TEXT,
-    ROLES_BUTTON_TEXT, TOP_SKILLS_BUTTON_TEXT,
+    ROLES_BUTTON_TEXT, TOP_SKILLS_BUTTON_TEXT, VIEW_ALL_BUTTON_TEXT,
+    UNSUBSCRIBE_BUTTON_TEXT,
 )
 from history import (
     load_sent_vacancies, save_sent_vacancies, prune_sent_vacancies,
@@ -96,10 +97,15 @@ def send_summary(target_df):
 
     for chat_id, data in subscribers.items():
         try:
-            sent, _ = _deliver_vacancies(
+            sent, has_new = _deliver_vacancies(
                 chat_id, data.get("industries") or [], data.get("roles") or [],
                 target_df, sent,
             )
+
+            if not has_new:
+                send_message(chat_id, "Новых интересных вакансий нет :(\n"
+                                        "Как только появятся, мы сразу же сообщим!")
+
             save_sent_vacancies(sent)
         except Exception as error:
             print(f"не удалось отправить {chat_id}: {error}")
@@ -168,7 +174,10 @@ TEXT_COMMANDS = {
     "/roles": lambda chat_id, subs: _send_filter_menu(chat_id, subs, "role"),
     ROLES_BUTTON_TEXT: lambda chat_id, subs: _send_filter_menu(chat_id, subs, "role"),
     "/top_skills": _cmd_top_skills,
-    TOP_SKILLS_BUTTON_TEXT: _cmd_top_skills
+    TOP_SKILLS_BUTTON_TEXT: _cmd_top_skills,
+    "/view_all": _cmd_view_all,
+    VIEW_ALL_BUTTON_TEXT: _cmd_view_all,
+    UNSUBSCRIBE_BUTTON_TEXT: _cmd_stop,
 }
 
 
@@ -182,6 +191,37 @@ def _handle_message(message, subscribers):
     handler = TEXT_COMMANDS.get(text)
     if handler:
         handler(chat_id, subscribers)
+
+
+def _cmd_view_all(chat_id, subscribers):
+    if chat_id not in subscribers:
+        send_message(chat_id, "Сначала подпишитесь: /start")
+        return
+
+    target_df = _load_latest_vacancies()
+    if target_df.empty:
+        send_message(
+            chat_id,
+            "Сводка ещё не готова — вакансии обновляются раз в 4 часа, загляните чуть позже 🙂",
+        )
+        return
+
+    industries = get_industries(subscribers, chat_id)
+    roles = get_roles(subscribers, chat_id)
+
+    candidates = filter_vacancies(target_df, industries=industries, roles=roles)
+
+    if candidates.empty:
+        send_message(chat_id, "По выбранным фильтрам сейчас нет вакансий за неделю.")
+        return
+
+    messages = build_summary_messages(
+        candidates, is_new_subscriber=True, industries=industries, roles=roles,
+    )
+
+    for message in messages:
+        send_message(chat_id, message)
+        time.sleep(1)
 
 
 # === callback-кнопки выбора сфер/ролей ===

@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Add a top 5 skills list for target vanaxies">
+    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Update send_message(), edit_message_reply_markup(), answer_callback_query()  to protect against freezing">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/keyboards.py" beforeDir="false" afterPath="$PROJECT_DIR$/keyboards.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/summary.py" beforeDir="false" afterPath="$PROJECT_DIR$/summary.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/telegram_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/telegram_bot.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -240,7 +242,47 @@
       <option name="project" value="LOCAL" />
       <updated>1788070896982</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Add a python-dotenv dependency">
+      <option name="closed" value="true" />
+      <created>1788415730505</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1788415730505</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Add a python-dotenv dependency">
+      <option name="closed" value="true" />
+      <created>1788416937604</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1788416937604</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Update get_updates() to protect against freezing">
+      <option name="closed" value="true" />
+      <created>1788417033931</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1788417033931</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1788418147763</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1788418147763</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Update send_message(), edit_message_reply_markup(), answer_callback_query()  to protect against freezing">
+      <option name="closed" value="true" />
+      <created>1788419202408</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1788419202408</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -263,9 +305,12 @@
     <MESSAGE value="Add saving of sended vacancies" />
     <MESSAGE value="Add a selection of different fields besides healthtech" />
     <MESSAGE value="Add a selection of different roles" />
-    <MESSAGE value="Initial commit" />
     <MESSAGE value="Add a collection of archived vacancies for statistics" />
     <MESSAGE value="Add a top 5 skills list for target vanaxies" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add a top 5 skills list for target vanaxies" />
+    <MESSAGE value="Add a python-dotenv dependency" />
+    <MESSAGE value="Update get_updates() to protect against freezing" />
+    <MESSAGE value="Initial commit" />
+    <MESSAGE value="Update send_message(), edit_message_reply_markup(), answer_callback_query()  to protect against freezing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update send_message(), edit_message_reply_markup(), answer_callback_query()  to protect against freezing" />
   </component>
 </project>

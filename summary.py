@@ -90,9 +90,9 @@ def build_summary_messages(df, is_new_subscriber=False, industries=None,
     scope = f"{_industries_title(industries)} · {_roles_title(roles)}"
 
     if is_new_subscriber:
-        intro = f"📅 Вакансии за последние {days} дней ({len(df)}) — {scope}"
+        intro = f"📅 Вакансии за последние {days} дней — {scope}"
     else:
-        intro = f"🆕 Новые вакансии ({len(df)}) — {scope}"
+        intro = f"🆕 Новые вакансии — {scope}"
 
     items = [
         _format_vacancy(row, i + 1)
