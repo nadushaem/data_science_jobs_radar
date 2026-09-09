@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Update _cmd_view_all()">
+    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Update send_summary(): dont send empty messages every 4 hours">
+      <change afterPath="$PROJECT_DIR$/sources/hirify.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/telegram_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/telegram_bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/collect_history.py" beforeDir="false" afterPath="$PROJECT_DIR$/collect_history.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,8 +18,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="Jupyter Notebook" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -44,21 +46,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.Run main.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python.geekjob.executor&quot;: &quot;Run&quot;,
-    &quot;Python.getmatch.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.normalize.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/PycharmProjects/data_science_jobs_radar&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.Run main.py.executor": "Run",
+    "Python.collect_history.executor": "Run",
+    "Python.geekjob.executor": "Run",
+    "Python.getmatch.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.normalize.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "D:/PycharmProjects/data_science_jobs_radar"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\PycharmProjects\healthtech_jobs_radar" />
@@ -67,7 +70,7 @@
       <recent name="D:\PycharmProjects\healthtech_jobs_radar\sources" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Run main.py">
+  <component name="RunManager">
     <configuration name="Run main.py" type="PythonConfigurationType" factoryName="Python">
       <module name="healthtech_jobs_radar" />
       <option name="ENV_FILES" value="$PROJECT_DIR$/.env" />
@@ -296,7 +299,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788507286628</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Update send_summary(): dont send empty messages every 4 hours">
+      <option name="closed" value="true" />
+      <created>1788942567094</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1788942567094</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -327,6 +338,7 @@
     <MESSAGE value="Update send_message(), edit_message_reply_markup(), answer_callback_query()  to protect against freezing" />
     <MESSAGE value="Add two buttons: show all vacancies and unsubscribe" />
     <MESSAGE value="Update _cmd_view_all()" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update _cmd_view_all()" />
+    <MESSAGE value="Update send_summary(): dont send empty messages every 4 hours" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update send_summary(): dont send empty messages every 4 hours" />
   </component>
 </project>

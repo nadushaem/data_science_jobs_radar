@@ -8,12 +8,13 @@ from classify import classify_vacancies
 from dedupe import deduplicate_vacancies
 from telegram_bot import send_summary, poll_updates
 from stats import build_stats_dataset, append_stats, get_exchange_rates
+from sources import geekjob, getmatch, hirify
 
 from dotenv import load_dotenv
 load_dotenv()
 
 
-SOURCES = [geekjob, getmatch]
+SOURCES = [geekjob, getmatch, hirify]
 
 
 def run():
