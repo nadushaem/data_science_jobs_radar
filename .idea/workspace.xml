@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Update send_summary(): dont send empty messages every 4 hours">
-      <change afterPath="$PROJECT_DIR$/sources/hirify.py" afterDir="false" />
+    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Add hirify as source">
+      <change afterPath="$PROJECT_DIR$/update.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/collect_history.py" beforeDir="false" afterPath="$PROJECT_DIR$/collect_history.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +56,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHELLCHECK.PATH": "I do mind",
     "git-widget-placeholder": "main",
     "last_opened_file_path": "D:/PycharmProjects/data_science_jobs_radar"
   }
@@ -307,7 +306,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788942567094</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Add hirify as source">
+      <option name="closed" value="true" />
+      <created>1788947791434</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1788947791434</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -339,6 +346,7 @@
     <MESSAGE value="Add two buttons: show all vacancies and unsubscribe" />
     <MESSAGE value="Update _cmd_view_all()" />
     <MESSAGE value="Update send_summary(): dont send empty messages every 4 hours" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update send_summary(): dont send empty messages every 4 hours" />
+    <MESSAGE value="Add hirify as source" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add hirify as source" />
   </component>
 </project>
