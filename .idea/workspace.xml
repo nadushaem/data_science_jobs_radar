@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Add two buttons: show all vacancies and unsubscribe">
+    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Update _cmd_view_all()">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/telegram_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/telegram_bot.py" afterDir="false" />
     </list>
@@ -93,8 +93,8 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.main" />
       <item itemvalue="Python.Run main.py" />
+      <item itemvalue="Python.main" />
     </list>
   </component>
   <component name="SharedIndexes">
@@ -288,7 +288,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788506429408</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Update _cmd_view_all()">
+      <option name="closed" value="true" />
+      <created>1788507286628</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1788507286628</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -318,6 +326,7 @@
     <MESSAGE value="Initial commit" />
     <MESSAGE value="Update send_message(), edit_message_reply_markup(), answer_callback_query()  to protect against freezing" />
     <MESSAGE value="Add two buttons: show all vacancies and unsubscribe" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add two buttons: show all vacancies and unsubscribe" />
+    <MESSAGE value="Update _cmd_view_all()" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update _cmd_view_all()" />
   </component>
 </project>

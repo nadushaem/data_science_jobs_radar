@@ -27,9 +27,6 @@ OFFSET_FILE = "data/telegram_offset.txt"
 LATEST_VACANCIES_FILE = "data/vacancies_latest.pkl"
 
 
-# описание одного фильтра: как читать/писать выбор, строить клавиатуру
-# и текст меню. добавление нового фильтра (например, грейд) — это
-# просто ещё одна запись в этом словаре, без новых if/elif по коду
 _FILTERS = {
     "ind": {
         "get": get_industries, "set": set_industries,
@@ -101,11 +98,6 @@ def send_summary(target_df):
                 chat_id, data.get("industries") or [], data.get("roles") or [],
                 target_df, sent,
             )
-
-            if not has_new:
-                send_message(chat_id, "Новых интересных вакансий нет :(\n"
-                                        "Как только появятся, мы сразу же сообщим!")
-
             save_sent_vacancies(sent)
         except Exception as error:
             print(f"не удалось отправить {chat_id}: {error}")
