@@ -13,6 +13,7 @@ from keywords import LEVEL_TAXONOMY
 
 SOURCE_NAME = "hirify"
 BASE_URL = "https://hirify.me/"
+MIN_REQUEST_DELAY = 3
 
 
 # парсит одну карточку вакансии из списка
@@ -42,10 +43,25 @@ def parse_card(card, base_url):
         "source": SOURCE_NAME,
     }
 
+def _get(url, params=None, max_retries=4):
+    for attempt in range(max_retries):
+        response = requests.get(url, params=params)
+
+        if response.status_code == 429:
+            wait = int(response.headers.get("Retry-After", 5 * (attempt + 1)))
+            print(f"hirify: 429, ждём {wait} сек (попытка {attempt + 1}/{max_retries})")
+            time.sleep(wait)
+            continue
+
+        response.raise_for_status()
+        return response
+
+    response.raise_for_status()
+    return response
 
 # получаем страницу вакансии
 def get_vacancy_soup(url):
-    response = requests.get(url)
+    response = _get(url)
     response.raise_for_status()
 
     return BeautifulSoup(response.text, "html.parser")
@@ -190,7 +206,7 @@ def fetch_vacancies(days=7, max_pages=100):
     for page in range(1, max_pages + 1):
         url = f"{BASE_URL}?page={page}&remote_type=russia"
 
-        response = requests.get(url)
+        response = _get(url)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
@@ -217,6 +233,7 @@ def fetch_vacancies(days=7, max_pages=100):
             vacancy.update(salary_data)
 
             try:
+                time.sleep(MIN_REQUEST_DELAY)
                 vacancy_soup = get_vacancy_soup(vacancy["url"])
                 vacancy["description"] = parse_description(vacancy_soup)
 
@@ -229,8 +246,6 @@ def fetch_vacancies(days=7, max_pages=100):
                     guess_level(grade_text, LEVEL_TAXONOMY) if grade_text
                     else guess_level(vacancy["title"], LEVEL_TAXONOMY)
                 )
-
-                time.sleep(0.5)
 
                 vacancy["skills"] = parse_skills(vacancy_soup)
 

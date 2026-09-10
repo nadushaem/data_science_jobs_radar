@@ -9,6 +9,7 @@ from dedupe import deduplicate_vacancies
 from telegram_bot import send_summary, poll_updates
 from stats import build_stats_dataset, append_stats, get_exchange_rates
 from sources import geekjob, getmatch, hirify
+from telegram_api import delete_webhook
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -58,6 +59,8 @@ def run():
 
 
 if __name__ == "__main__":
+    delete_webhook()
+
     run()
 
     scheduler = BlockingScheduler()

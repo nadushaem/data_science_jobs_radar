@@ -4,6 +4,11 @@ import requests
 TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"
 
 
+def delete_webhook():
+    response = requests.post(_api_url("deleteWebhook"), timeout=15)
+    response.raise_for_status()
+
+
 def _token():
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     if not token:
@@ -16,11 +21,18 @@ def _api_url(method):
 
 
 def get_updates(offset):
-    response = requests.get(
-        _api_url("getUpdates"), params={"offset": offset, "timeout": 5},
-        timeout=15,
-    )
-    response.raise_for_status()
+    try:
+        response = requests.get(
+            _api_url("getUpdates"), params={"offset": offset, "timeout": 5},
+            timeout=15,
+        )
+        response.raise_for_status()
+    except requests.HTTPError as error:
+        if error.response is not None and error.response.status_code == 409:
+            print("getUpdates: 409 — другой процесс уже поллит этот токен")
+            return []
+        raise
+
     return response.json().get("result", [])
 
 

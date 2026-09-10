@@ -54,10 +54,9 @@ def filter_vacancies(df, industries=None, roles=None):
 
 
 def _capitalize_first(text):
-    if not text:
-        return text
+    if not isinstance(text, str) or not text:
+        return None
     return text[0].upper() + text[1:]
-
 
 def _format_level(value):
     if isinstance(value, list) and value:
