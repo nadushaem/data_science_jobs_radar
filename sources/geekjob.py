@@ -6,8 +6,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from keywords import LEVEL_TAXONOMY, SKILLS_VOCABULARY
-from parsing import find_keywords, guess_level, parse_salary
+from pipeline.keywords import LEVEL_TAXONOMY, SKILLS_VOCABULARY
+from pipeline.parsing import find_keywords, guess_level, parse_salary
 
 SOURCE_NAME = "geekjob"
 BASE_URL = "https://geekjob.ru/vacancies"

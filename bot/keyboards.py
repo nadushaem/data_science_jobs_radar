@@ -1,4 +1,4 @@
-from keywords import INDUSTRY_LABELS, ROLE_LABELS
+from pipeline.keywords import INDUSTRY_LABELS, ROLE_LABELS
 
 INDUSTRIES_BUTTON_TEXT = "🎯 Выбрать сферы"
 ROLES_BUTTON_TEXT = "🧩 Выбрать роли"

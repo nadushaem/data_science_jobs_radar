@@ -3,7 +3,13 @@ import time
 
 import pandas as pd
 
-from history import (
+from bot.api import (
+    answer_callback_query,
+    edit_message_reply_markup,
+    get_updates,
+    send_message,
+)
+from bot.history import (
     get_new_vacancies_for_subscriber,
     load_sent_vacancies,
     mark_as_sent,
@@ -11,7 +17,7 @@ from history import (
     reset_subscriber_history,
     save_sent_vacancies,
 )
-from keyboards import (
+from bot.keyboards import (
     INDUSTRIES_BUTTON_TEXT,
     ROLES_BUTTON_TEXT,
     TOP_SKILLS_BUTTON_TEXT,
@@ -23,8 +29,7 @@ from keyboards import (
     industries_text,
     roles_text,
 )
-from stats import build_top_skills_message
-from subscribers import (
+from bot.subscribers import (
     get_industries,
     get_roles,
     load_subscribers,
@@ -32,13 +37,8 @@ from subscribers import (
     set_industries,
     set_roles,
 )
-from summary import build_summary_messages, filter_vacancies
-from telegram_api import (
-    answer_callback_query,
-    edit_message_reply_markup,
-    get_updates,
-    send_message,
-)
+from pipeline.stats import build_top_skills_message
+from pipeline.summary import build_summary_messages, filter_vacancies
 
 OFFSET_FILE = "data/telegram_offset.txt"
 LATEST_VACANCIES_FILE = "data/vacancies_latest.pkl"

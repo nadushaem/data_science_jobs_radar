@@ -7,8 +7,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from keywords import LEVEL_TAXONOMY
-from parsing import guess_level, parse_salary
+from pipeline.keywords import LEVEL_TAXONOMY
+from pipeline.parsing import guess_level, parse_salary
 
 SOURCE_NAME = "hirify"
 BASE_URL = "https://hirify.me/"

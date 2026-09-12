@@ -5,8 +5,8 @@ from urllib.parse import urljoin
 import pandas as pd
 import requests
 
-from keywords import LEVEL_TAXONOMY
-from parsing import guess_level, strip_html
+from pipeline.keywords import LEVEL_TAXONOMY
+from pipeline.parsing import guess_level, strip_html
 
 SOURCE_NAME = "getmatch"
 BASE_URL = "https://getmatch.ru"

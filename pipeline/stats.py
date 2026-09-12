@@ -4,7 +4,7 @@ from collections import Counter
 import pandas as pd
 import requests
 
-from keywords import TARGET_KEYWORDS
+from pipeline.keywords import TARGET_KEYWORDS
 
 STATS_FILE = "data/vacancies_stats.pkl"
 
