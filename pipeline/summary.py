@@ -1,6 +1,6 @@
 import pandas as pd
 
-from keywords import INDUSTRY_LABELS, ROLE_LABELS
+from pipeline.keywords import INDUSTRY_LABELS, ROLE_LABELS
 
 
 def _industries_title(industries):

@@ -1,4 +1,9 @@
-from parsing import find_excluded_roles, find_keywords, find_roles, get_search_text
+from pipeline.parsing import (
+    find_excluded_roles,
+    find_keywords,
+    find_roles,
+    get_search_text,
+)
 
 
 def classify_vacancy(vacancy, target_keywords, role_taxonomy, excluded_roles):
