@@ -111,7 +111,7 @@ def send_summary(target_df):
 
     for chat_id, data in subscribers.items():
         try:
-            sent, has_new = _deliver_vacancies(
+            sent, _has_new = _deliver_vacancies(
                 chat_id, data.get("industries") or [], data.get("roles") or [],
                 target_df, sent,
             )

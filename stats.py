@@ -39,15 +39,12 @@ def get_exchange_rates():
         data = response.json()
 
         rates = {"RUB": 1.0}
-        for code in FALLBACK_RATES:
+        for code, fallback_rate in FALLBACK_RATES.items():
             valute = data.get("Valute", {}).get(code)
             if valute:
-                # value уже за nominal единиц валюты
                 rates[code] = valute["Value"] / valute["Nominal"]
             else:
-                rates[code] = FALLBACK_RATES[code]
-
-        return rates
+                rates[code] = fallback_rate
 
     except (requests.RequestException, ValueError, KeyError) as error:
         print(f"не удалось получить курсы цб, использую фолбэк: {error}")
@@ -56,7 +53,7 @@ def get_exchange_rates():
 
 # конвертируем сумму в рубли по словарю курсов
 def to_rub(amount, currency, rates):
-    if amount is None or (isinstance(amount, float) and amount != amount):  # nan
+    if amount is None or pd.isna(amount):
         return amount
 
     # если валюта не распознана — считаем, что это уже рубли
