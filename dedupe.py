@@ -32,9 +32,8 @@ def _titles_match(a, b, threshold, min_length_ratio=0.7):
     a, b = str(a), str(b)
     shorter, longer = (a, b) if len(a) <= len(b) else (b, a)
 
-    if shorter and shorter in longer:
-        if len(shorter) / len(longer) >= min_length_ratio:
-            return True
+    if shorter and shorter in longer and len(shorter) / len(longer) >= min_length_ratio:
+        return True
 
     return SequenceMatcher(None, a, b).ratio() >= threshold
 
