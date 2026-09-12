@@ -45,7 +45,7 @@ def parse_card(card, base_url):
 
 def _get(url, params=None, max_retries=4):
     for attempt in range(max_retries):
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, timeout=15)
 
         if response.status_code == 429:
             wait = int(response.headers.get("Retry-After", 5 * (attempt + 1)))

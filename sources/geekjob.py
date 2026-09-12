@@ -66,7 +66,7 @@ def parse_card(card, base_url):
 
 # получаем страницу вакансии
 def get_vacancy_soup(url):
-    response = requests.get(url)
+    response = requests.get(url, timeout=15)
     response.raise_for_status()
 
     return BeautifulSoup(response.text, "html.parser")

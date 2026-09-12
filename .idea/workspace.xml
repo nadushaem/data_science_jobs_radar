@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Add update.sh for lightweight redeploys">
+    <list default="true" id="88c57b11-7727-4ccc-a343-8330dda0a162" name="Changes" comment="Update hirify.py: add delay between requests">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/getmatch.py" beforeDir="false" afterPath="$PROJECT_DIR$/sources/getmatch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sources/hirify.py" beforeDir="false" afterPath="$PROJECT_DIR$/sources/hirify.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/summary.py" beforeDir="false" afterPath="$PROJECT_DIR$/summary.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/telegram_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/telegram_api.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,25 +45,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.Run main.py.executor": "Run",
-    "Python.collect_history.executor": "Run",
-    "Python.geekjob.executor": "Run",
-    "Python.getmatch.executor": "Run",
-    "Python.hirify.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.normalize.executor": "Run",
-    "Python.script.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHELLCHECK.PATH": "I do mind",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "D:/PycharmProjects/data_science_jobs_radar"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.Run main.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.collect_history.executor&quot;: &quot;Run&quot;,
+    &quot;Python.geekjob.executor&quot;: &quot;Run&quot;,
+    &quot;Python.getmatch.executor&quot;: &quot;Run&quot;,
+    &quot;Python.hirify.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.normalize.executor&quot;: &quot;Run&quot;,
+    &quot;Python.script.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;I do mind&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/PycharmProjects/data_science_jobs_radar&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\PycharmProjects\healthtech_jobs_radar" />
@@ -74,7 +72,7 @@
       <recent name="D:\PycharmProjects\healthtech_jobs_radar\sources" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.Run main.py">
     <configuration name="Run main.py" type="PythonConfigurationType" factoryName="Python">
       <module name="healthtech_jobs_radar" />
       <option name="ENV_FILES" value="$PROJECT_DIR$/.env" />
@@ -327,7 +325,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788948382366</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="Update hirify.py: add delay between requests">
+      <option name="closed" value="true" />
+      <created>1789026565896</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1789026565896</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -361,6 +367,7 @@
     <MESSAGE value="Update send_summary(): dont send empty messages every 4 hours" />
     <MESSAGE value="Add hirify as source" />
     <MESSAGE value="Add update.sh for lightweight redeploys" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add update.sh for lightweight redeploys" />
+    <MESSAGE value="Update hirify.py: add delay between requests" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update hirify.py: add delay between requests" />
   </component>
 </project>

@@ -107,6 +107,7 @@ def fetch_vacancies(days=7, limit=20):
                 "limit": limit,
                 "pa": "all",
             },
+            timeout=15
         )
         response.raise_for_status()
         data = response.json()
