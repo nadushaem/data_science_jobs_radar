@@ -3,12 +3,12 @@
 import pandas as pd
 from dotenv import load_dotenv
 
-from classify import classify_vacancies
-from dedupe import deduplicate_vacancies
-from keywords import EXCLUDED_ROLES, ROLE_TAXONOMY, TARGET_KEYWORDS
-from normalize import normalize_dataframe
+from pipeline.classify import classify_vacancies
+from pipeline.dedupe import deduplicate_vacancies
+from pipeline.keywords import EXCLUDED_ROLES, ROLE_TAXONOMY, TARGET_KEYWORDS
+from pipeline.normalize import normalize_dataframe
+from pipeline.stats import append_stats, build_stats_dataset, get_exchange_rates
 from sources import geekjob, getmatch, hirify
-from stats import append_stats, build_stats_dataset, get_exchange_rates
 
 load_dotenv()
 
