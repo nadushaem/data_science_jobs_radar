@@ -1,16 +1,15 @@
 # запуск: python collect_history.py
 
 import pandas as pd
+from dotenv import load_dotenv
 
-from sources import geekjob, getmatch
-from keywords import TARGET_KEYWORDS, EXCLUDED_ROLES, ROLE_TAXONOMY
-from normalize import normalize_dataframe
 from classify import classify_vacancies
 from dedupe import deduplicate_vacancies
-from stats import build_stats_dataset, append_stats, get_exchange_rates
+from keywords import EXCLUDED_ROLES, ROLE_TAXONOMY, TARGET_KEYWORDS
+from normalize import normalize_dataframe
 from sources import geekjob, getmatch, hirify
+from stats import append_stats, build_stats_dataset, get_exchange_rates
 
-from dotenv import load_dotenv
 load_dotenv()
 
 

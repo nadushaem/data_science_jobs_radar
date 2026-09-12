@@ -1,17 +1,16 @@
 import pandas as pd
 from apscheduler.schedulers.blocking import BlockingScheduler
+from dotenv import load_dotenv
 
-from sources import geekjob, getmatch
-from keywords import TARGET_KEYWORDS, EXCLUDED_ROLES, ROLE_TAXONOMY
-from normalize import normalize_dataframe
 from classify import classify_vacancies
 from dedupe import deduplicate_vacancies
-from telegram_bot import send_summary, poll_updates
-from stats import build_stats_dataset, append_stats, get_exchange_rates
+from keywords import EXCLUDED_ROLES, ROLE_TAXONOMY, TARGET_KEYWORDS
+from normalize import normalize_dataframe
 from sources import geekjob, getmatch, hirify
+from stats import append_stats, build_stats_dataset, get_exchange_rates
 from telegram_api import delete_webhook
+from telegram_bot import poll_updates, send_summary
 
-from dotenv import load_dotenv
 load_dotenv()
 
 

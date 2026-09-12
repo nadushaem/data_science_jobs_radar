@@ -1,15 +1,14 @@
 import re
-from urllib.parse import urljoin
-from datetime import datetime, timedelta
 import time
+from datetime import datetime, timedelta
+from urllib.parse import urljoin
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from parsing import guess_level
 from keywords import LEVEL_TAXONOMY
-
+from parsing import guess_level, parse_salary
 
 SOURCE_NAME = "hirify"
 BASE_URL = "https://hirify.me/"
@@ -118,50 +117,6 @@ def parse_skills(soup):
     ]
 
 
-# парсим зп вида "300 000 ₽" — на hirify это одно число без "от"/"до",
-# трактуем его как нижнюю границу ("от")
-def parse_salary(value):
-    result = {
-        "salary_min": None,
-        "salary_max": None,
-        "currency": None,
-        "salary_period": "month",  # на hirify зп всегда указана за месяц
-    }
-
-    if not value:
-        return result
-
-    raw = str(value).lower().replace("\xa0", " ")
-
-    if "₽" in raw or "руб" in raw:
-        result["currency"] = "RUB"
-    elif "$" in raw or "usd" in raw:
-        result["currency"] = "USD"
-    elif "€" in raw or "eur" in raw:
-        result["currency"] = "EUR"
-    elif "£" in raw or "gbp" in raw:
-        result["currency"] = "GBP"
-
-    numbers = re.findall(r"\d[\d ]*\d|\d", raw)
-    values = [int(n.replace(" ", "")) for n in numbers]
-    values = [v for v in values if v < 10_000_000]
-
-    if not values:
-        return result
-
-    if "от " in raw:
-        result["salary_min"] = values[0]
-    elif "до " in raw:
-        result["salary_max"] = values[0]
-    elif len(values) >= 2:
-        result["salary_min"] = min(values[:2])
-        result["salary_max"] = max(values[:2])
-    else:
-        result["salary_min"] = values[0]
-
-    return result
-
-
 # парсим относительную дату вида "9 минут назад", "2 часа назад", "3 дня назад"
 def parse_relative_date(value):
     if not value:
@@ -229,7 +184,7 @@ def fetch_vacancies(days=7, max_pages=100):
             page_has_recent = True
             vacancy["published_at"] = published_at
 
-            salary_data = parse_salary(vacancy.pop("salary_text", None))
+            salary_data = parse_salary(vacancy.pop("salary_text", None), detect_period=False)
             vacancy.update(salary_data)
 
             try:

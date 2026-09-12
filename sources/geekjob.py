@@ -1,18 +1,16 @@
 import re
-from urllib.parse import urljoin
 from datetime import datetime, timedelta
+from urllib.parse import urljoin
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from parsing import find_keywords, guess_level
-from keywords import SKILLS_VOCABULARY, LEVEL_TAXONOMY
-
+from keywords import LEVEL_TAXONOMY, SKILLS_VOCABULARY
+from parsing import find_keywords, guess_level, parse_salary
 
 SOURCE_NAME = "geekjob"
 BASE_URL = "https://geekjob.ru/vacancies"
-
 
 # парсит одну вакансию и возвращает словарь для нее
 def parse_card(card, base_url):
@@ -126,80 +124,6 @@ def parse_tags(soup):
         key: values if values else None
         for key, values in tags.items()
     }
-
-
-# парсим зп (формат geekjob: "от 150 000 ₽", "100k-150k", "150 000 - 200 000 руб." и тд)
-def parse_salary(value):
-    result = {
-        "salary_min": None,
-        "salary_max": None,
-        "currency": None,
-        "salary_period": None,
-    }
-
-    if not value:
-        return result
-
-    raw = str(value).lower()
-    raw = raw.replace("\xa0", " ")
-    raw = raw.replace(",", ".")
-
-    if any(x in raw for x in ["₽", "руб", "rub"]):
-        result["currency"] = "RUB"
-    elif any(x in raw for x in ["$", "usd"]):
-        result["currency"] = "USD"
-    elif any(x in raw for x in ["€", "eur"]):
-        result["currency"] = "EUR"
-    elif any(x in raw for x in ["£", "gbp"]):
-        result["currency"] = "GBP"
-
-    if any(x in raw for x in ["год", "year", "/year", "per year"]):
-        result["salary_period"] = "year"
-    elif any(x in raw for x in ["час", "hour", "/hour", "per hour"]):
-        result["salary_period"] = "hour"
-    else:
-        result["salary_period"] = "month"
-
-    numbers = re.findall(
-        r"\d+(?:\.\d+)?\s*(?:k|к|тыс\.?)?",
-        raw,
-    )
-
-    values = []
-
-    for item in numbers:
-        item = item.replace(" ", "")
-
-        if re.search(r"(k|к|тыс)", item):
-            number = float(
-                re.sub(r"(k|к|тыс\.?)", "", item)
-            )
-            number *= 1000
-        else:
-            number = float(item)
-
-        values.append(
-            int(number) if number.is_integer() else number
-        )
-
-    values = [value for value in values if value < 10_000_000]
-    if not values:
-        return result
-
-    if any(x in raw for x in ["от ", "from ", ">="]):
-        result["salary_min"] = values[0]
-
-    elif any(x in raw for x in ["до ", "up to ", "<="]):
-        result["salary_max"] = values[0]
-
-    elif len(values) >= 2:
-        result["salary_min"] = min(values[:2])
-        result["salary_max"] = max(values[:2])
-
-    else:
-        result["salary_min"] = values[0]
-
-    return result
 
 
 # парсим дату вида "17 августа"

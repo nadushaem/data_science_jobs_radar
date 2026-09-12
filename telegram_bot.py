@@ -1,27 +1,44 @@
 import os
 import time
+
 import pandas as pd
 
-from telegram_api import (
-    get_updates, send_message, edit_message_reply_markup, answer_callback_query,
-)
-from subscribers import (
-    load_subscribers, save_subscribers,
-    get_industries, set_industries, get_roles, set_roles,
+from history import (
+    get_new_vacancies_for_subscriber,
+    load_sent_vacancies,
+    mark_as_sent,
+    prune_sent_vacancies,
+    reset_subscriber_history,
+    save_sent_vacancies,
 )
 from keyboards import (
-    build_industries_keyboard, build_roles_keyboard, build_main_keyboard,
-    industries_text, roles_text, INDUSTRIES_BUTTON_TEXT,
-    ROLES_BUTTON_TEXT, TOP_SKILLS_BUTTON_TEXT, VIEW_ALL_BUTTON_TEXT,
+    INDUSTRIES_BUTTON_TEXT,
+    ROLES_BUTTON_TEXT,
+    TOP_SKILLS_BUTTON_TEXT,
     UNSUBSCRIBE_BUTTON_TEXT,
+    VIEW_ALL_BUTTON_TEXT,
+    build_industries_keyboard,
+    build_main_keyboard,
+    build_roles_keyboard,
+    industries_text,
+    roles_text,
 )
-from history import (
-    load_sent_vacancies, save_sent_vacancies, prune_sent_vacancies,
-    get_new_vacancies_for_subscriber, mark_as_sent, reset_subscriber_history,
+from stats import build_top_skills_message
+from subscribers import (
+    get_industries,
+    get_roles,
+    load_subscribers,
+    save_subscribers,
+    set_industries,
+    set_roles,
 )
 from summary import build_summary_messages, filter_vacancies
-from stats import build_top_skills_message
-
+from telegram_api import (
+    answer_callback_query,
+    edit_message_reply_markup,
+    get_updates,
+    send_message,
+)
 
 OFFSET_FILE = "data/telegram_offset.txt"
 LATEST_VACANCIES_FILE = "data/vacancies_latest.pkl"

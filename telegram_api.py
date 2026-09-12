@@ -1,4 +1,5 @@
 import os
+
 import requests
 
 TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"

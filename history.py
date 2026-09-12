@@ -1,7 +1,6 @@
-import os
 import json
+import os
 from datetime import datetime, timedelta
-
 
 SENT_FILE = "data/sent_vacancies.json"
 SENT_RETENTION_DAYS = 30  # с запасом больше, чем окно фетча (7 дней)

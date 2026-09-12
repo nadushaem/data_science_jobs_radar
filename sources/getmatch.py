@@ -1,13 +1,12 @@
 import re
-from urllib.parse import urljoin
 from datetime import datetime, timedelta
+from urllib.parse import urljoin
 
 import pandas as pd
 import requests
 
-from parsing import strip_html, guess_level
 from keywords import LEVEL_TAXONOMY
-
+from parsing import guess_level, strip_html
 
 SOURCE_NAME = "getmatch"
 BASE_URL = "https://getmatch.ru"

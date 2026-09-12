@@ -1,7 +1,7 @@
 import ast
+from difflib import SequenceMatcher
 
 import pandas as pd
-from difflib import SequenceMatcher
 
 
 # CSV не хранит типы-списки (skills, specialization, ...) после
