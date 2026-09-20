@@ -40,8 +40,7 @@ def run(days=30):
         classify_vacancies(df.to_dict("records"), TARGET_KEYWORDS, ROLE_TAXONOMY, EXCLUDED_ROLES)
     )
 
-    for category in ["healthtech", "medtech", "femtech", "fintech", "edtech",
-                     "hrtech", "adtech", "gamedev", "logistics", "ecommerce"]:
+    for category in TARGET_KEYWORDS:
         df[category] = df[category].astype(bool)
 
     rates = get_exchange_rates()

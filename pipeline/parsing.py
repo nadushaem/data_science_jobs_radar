@@ -69,6 +69,7 @@ def strip_html(value):
 def get_search_text(vacancy):
     parts = [
         vacancy.get("title"),
+        vacancy.get("company"),
         vacancy.get("description"),
         vacancy.get("specialization"),
         vacancy.get("industry"),
