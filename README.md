@@ -27,6 +27,10 @@
 - **geekjob** — html-парсинг листинга + карточки вакансии (`geekjob.py`).
 - **getmatch** — внутренний json api (`getmatch.py`).
 - **hirify** — html-парсинг листинга + карточки вакансии (`hirify.py`), фильтр по `remote_type=russia`.
+- **datasecrets** — html-парсинг листинга + карточки вакансии (`datasecrets.py`).
+  Одна страница со всеми вакансиями, дат публикации на сайте нет, поэтому
+  в `published_at` пишется дата первой встречи вакансии
+  (`data/datasecrets_seen.json`).
 
 Каждый источник отдает список словарей с одинаковым набором полей
 (`title`, `company`, `location`, `work_format`, `salary_min/max`,
@@ -189,7 +193,9 @@ journalctl -u data-science-jobs-radar -f
 - `subscribers.json` — подписчики и их фильтры (сферы/роли);
 - `sent_vacancies.json` — какие url и когда были отправлены каждому
   подписчику (используется, чтобы не слать повторно);
-- `telegram_offset.txt` — offset последнего обработанного апдейта Telegram.
+- `telegram_offset.txt` — offset последнего обработанного апдейта Telegram;
+- `datasecrets_seen.json` — когда каждая вакансия datasecrets впервые попала
+  в выдачу (заменяет отсутствующую на сайте дату публикации).
 
 ## Roadmap
 

@@ -72,6 +72,10 @@ ROLE_TAXONOMY = {
         "мо-инженер",
         "мо инженер",
         "инженер мо",
+        "mle",
+        "ml-разработчик",
+        "ml разработчик",
+        "ml developer",
     ],
 
     "ai_ml_engineer": [
@@ -134,6 +138,14 @@ ROLE_TAXONOMY = {
         "дата инженер",
         "дата-инженер",
         "инженер данных",
+        "data engineering"
+    ],
+
+    "mlops_engineer": [
+        "mlops",
+        "ml ops",
+        "mlops engineer",
+        "mlops-инженер",
     ],
 }
 
@@ -148,6 +160,7 @@ ROLE_LABELS = {
     "research_scientist": "Research Scientist",
     "data_governance": "Data Governance",
     "data_quality": "Data Quality",
+    "mlops_engineer": "MLOps Engineer",
 }
 
 EXCLUDED_ROLES = [

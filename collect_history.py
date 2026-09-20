@@ -8,12 +8,12 @@ from pipeline.dedupe import deduplicate_vacancies
 from pipeline.keywords import EXCLUDED_ROLES, ROLE_TAXONOMY, TARGET_KEYWORDS
 from pipeline.normalize import normalize_dataframe
 from pipeline.stats import append_stats, build_stats_dataset, get_exchange_rates
-from sources import geekjob, getmatch, hirify
+from sources import datasecrets, geekjob, getmatch, hirify
 
 load_dotenv()
 
 
-SOURCES = [geekjob, getmatch, hirify]
+SOURCES = [datasecrets, geekjob, getmatch, hirify]
 
 
 # разовый прогон: собираем вакансии за месяц и кладем в архив статистики.

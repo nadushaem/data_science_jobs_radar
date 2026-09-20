@@ -124,7 +124,9 @@ def parse_salary(value, detect_period=True):
     if not value:
         return result
 
-    raw = str(value).lower().replace("\xa0", " ").replace(",", ".")
+    raw = str(value).lower().replace("\xa0", " ")
+    raw = re.sub(r"(?<=\d),(?=\d{3}(\D|$))", "", raw)
+    raw = raw.replace(",", ".")
 
     if any(x in raw for x in ["₽", "руб", "rub"]):
         result["currency"] = "RUB"
