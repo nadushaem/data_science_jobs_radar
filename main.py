@@ -1,9 +1,9 @@
 import pandas as pd
 from apscheduler.schedulers.blocking import BlockingScheduler
-from bot.api import delete_webhook
-from bot.handlers import poll_updates, send_summary
 from dotenv import load_dotenv
 
+from bot.api import delete_webhook
+from bot.handlers import poll_updates, send_summary
 from pipeline.classify import classify_vacancies
 from pipeline.dedupe import deduplicate_vacancies
 from pipeline.keywords import EXCLUDED_ROLES, ROLE_TAXONOMY, TARGET_KEYWORDS
