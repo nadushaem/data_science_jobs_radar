@@ -12,6 +12,7 @@ from pipeline.parsing import find_keywords, guess_level, parse_salary
 SOURCE_NAME = "geekjob"
 BASE_URL = "https://geekjob.ru/vacancies"
 
+
 # парсит одну вакансию и возвращает словарь для нее
 def parse_card(card, base_url):
     title_element = card.find("a", class_="title")
@@ -34,15 +35,8 @@ def parse_card(card, base_url):
         salary_text = None
         location = None
 
-    work_format_element = card.find(
-        "span",
-        class_=["inhouse-label", "remote-label"]
-    )
-    work_format = (
-        work_format_element.get_text(strip=True)
-        if work_format_element
-        else None
-    )
+    work_format_element = card.find("span", class_=["inhouse-label", "remote-label"])
+    work_format = work_format_element.get_text(strip=True) if work_format_element else None
 
     date_element = card.find("time", class_="datetime-info")
     date_text = date_element.get_text(strip=True) if date_element else None
@@ -85,45 +79,27 @@ def parse_tags(soup):
     tags_block = soup.find("div", class_="tags-list")
 
     if not tags_block:
-        return {
-            "specialization": None,
-            "industry": None,
-            "level": None
-        }
+        return {"specialization": None, "industry": None, "level": None}
 
-    tags = {
-        "specialization": [],
-        "industry": [],
-        "level": []
-    }
+    tags = {"specialization": [], "industry": [], "level": []}
 
     category_mapping = {
         "Специализация": "specialization",
         "Отрасль и сфера применения": "industry",
-        "Уровень должности": "level"
+        "Уровень должности": "level",
     }
 
     current_category = None
 
     for element in tags_block.find_all(["b", "a"]):
-
         if element.name == "b":
             category_name = element.get_text(strip=True)
             current_category = category_mapping.get(category_name)
 
-        elif (
-            element.name == "a"
-            and "chip" in element.get("class", [])
-            and current_category
-        ):
-            tags[current_category].append(
-                element.get_text(strip=True)
-            )
+        elif element.name == "a" and "chip" in element.get("class", []) and current_category:
+            tags[current_category].append(element.get_text(strip=True))
 
-    return {
-        key: values if values else None
-        for key, values in tags.items()
-    }
+    return {key: values if values else None for key, values in tags.items()}
 
 
 # парсим дату вида "17 августа"
@@ -132,9 +108,18 @@ def parse_geekjob_date(value):
         return pd.NaT
 
     months = {
-        "января": 1, "февраля": 2, "марта": 3, "апреля": 4,
-        "мая": 5, "июня": 6, "июля": 7, "августа": 8,
-        "сентября": 9, "октября": 10, "ноября": 11, "декабря": 12,
+        "января": 1,
+        "февраля": 2,
+        "марта": 3,
+        "апреля": 4,
+        "мая": 5,
+        "июня": 6,
+        "июля": 7,
+        "августа": 8,
+        "сентября": 9,
+        "октября": 10,
+        "ноября": 11,
+        "декабря": 12,
     }
 
     match = re.match(r"(\d{1,2})\s+([а-яё]+)", str(value).lower().strip())

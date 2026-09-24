@@ -8,7 +8,7 @@ def load_subscribers():
     if not os.path.exists(SUBSCRIBERS_FILE):
         return {}
 
-    with open(SUBSCRIBERS_FILE, "r", encoding="utf-8") as file:
+    with open(SUBSCRIBERS_FILE, encoding="utf-8") as file:
         raw = json.load(file)
 
     if isinstance(raw, list):
@@ -29,7 +29,8 @@ def save_subscribers(subscribers):
     with open(SUBSCRIBERS_FILE, "w", encoding="utf-8") as file:
         json.dump(
             {str(chat_id): data for chat_id, data in subscribers.items()},
-            file, ensure_ascii=False,
+            file,
+            ensure_ascii=False,
         )
 
 

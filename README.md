@@ -137,7 +137,7 @@
    ```
 
    Первый прогон пайплайна выполнится сразу, дальше — по расписанию.
-   
+
 ## Деплой на сервер (`setup.sh`)
 
 Скрипт `setup.sh` разворачивает бота на чистом Ubuntu-сервере без
@@ -179,6 +179,15 @@ systemctl status data-science-jobs-radar
 systemctl restart data-science-jobs-radar
 journalctl -u data-science-jobs-radar -f
  ```
+
+## Разработка
+
+    pip install -r requirements-dev.txt
+    pre-commit install
+
+Перед каждым коммитом автоматически запускаются ruff (линтер + форматтер),
+базовые проверки файлов и запрет на коммит `.env` / `data/`.
+Прогнать вручную по всему репозиторию: `pre-commit run --all-files`.
 
 ## Данные
 

@@ -32,10 +32,7 @@ def _parse_salary_description(text):
     elif "£" in raw:
         currency = "GBP"
 
-    numbers = [
-        int(n.replace(" ", ""))
-        for n in re.findall(r"\d[\d ]*\d|\d", raw)
-    ]
+    numbers = [int(n.replace(" ", "")) for n in re.findall(r"\d[\d ]*\d|\d", raw)]
     numbers = [n for n in numbers if n < 10_000_000]
 
     if not numbers:
@@ -57,9 +54,7 @@ def _parse_offer(offer):
     primary_location = location_items[0] if location_items else {}
 
     skills = [
-        skill["name"].lower()
-        for skill in offer.get("skills_objects") or []
-        if skill.get("name")
+        skill["name"].lower() for skill in offer.get("skills_objects") or [] if skill.get("name")
     ]
 
     salary_min = offer.get("salary_display_from")
@@ -106,7 +101,7 @@ def fetch_vacancies(days=7, limit=20):
                 "limit": limit,
                 "pa": "all",
             },
-            timeout=15
+            timeout=15,
         )
         response.raise_for_status()
         data = response.json()

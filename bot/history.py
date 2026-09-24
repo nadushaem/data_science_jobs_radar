@@ -11,7 +11,7 @@ def load_sent_vacancies():
     if not os.path.exists(SENT_FILE):
         return {}
 
-    with open(SENT_FILE, "r", encoding="utf-8") as file:
+    with open(SENT_FILE, encoding="utf-8") as file:
         return json.load(file)
 
 
@@ -57,6 +57,7 @@ def mark_as_sent(sent, chat_id, urls):
     chat_sent.update({url: now_iso for url in urls if url})
 
     return sent
+
 
 # сбрасываем историю отправленных вакансий конкретному подписчику —
 # нужно при смене сфер, чтобы под новый фильтр видео было "с нуля"

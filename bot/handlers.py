@@ -46,13 +46,17 @@ LATEST_VACANCIES_FILE = "data/vacancies_latest.pkl"
 
 _FILTERS = {
     "ind": {
-        "get": get_industries, "set": set_industries,
-        "keyboard": build_industries_keyboard, "text": industries_text,
+        "get": get_industries,
+        "set": set_industries,
+        "keyboard": build_industries_keyboard,
+        "text": industries_text,
         "menu_title": "Выберите сферы, вакансии из которых хотите видеть",
     },
     "role": {
-        "get": get_roles, "set": set_roles,
-        "keyboard": build_roles_keyboard, "text": roles_text,
+        "get": get_roles,
+        "set": set_roles,
+        "keyboard": build_roles_keyboard,
+        "text": roles_text,
         "menu_title": "Выберите роли, вакансии на которые хотите видеть",
     },
 }
@@ -61,7 +65,7 @@ _FILTERS = {
 def _load_offset():
     if not os.path.exists(OFFSET_FILE):
         return 0
-    with open(OFFSET_FILE, "r", encoding="utf-8") as file:
+    with open(OFFSET_FILE, encoding="utf-8") as file:
         return int(file.read().strip() or 0)
 
 
@@ -80,6 +84,7 @@ def _load_latest_vacancies():
 
 # === доставка вакансий одному подписчику ===
 
+
 def _deliver_vacancies(chat_id, industries, roles, target_df, sent):
     candidates = get_new_vacancies_for_subscriber(target_df, sent, chat_id)
     candidates = filter_vacancies(candidates, industries=industries, roles=roles)
@@ -89,8 +94,10 @@ def _deliver_vacancies(chat_id, industries, roles, target_df, sent):
 
     is_new_subscriber = str(chat_id) not in sent
     messages = build_summary_messages(
-        candidates, is_new_subscriber=is_new_subscriber,
-        industries=industries, roles=roles,
+        candidates,
+        is_new_subscriber=is_new_subscriber,
+        industries=industries,
+        roles=roles,
     )
 
     for message in messages:
@@ -112,8 +119,11 @@ def send_summary(target_df):
     for chat_id, data in subscribers.items():
         try:
             sent, _has_new = _deliver_vacancies(
-                chat_id, data.get("industries") or [], data.get("roles") or [],
-                target_df, sent,
+                chat_id,
+                data.get("industries") or [],
+                data.get("roles") or [],
+                target_df,
+                sent,
             )
             save_sent_vacancies(sent)
         except Exception as error:
@@ -121,6 +131,7 @@ def send_summary(target_df):
 
 
 # === текстовые команды ===
+
 
 def _cmd_start(chat_id, subscribers):
     if chat_id not in subscribers:
@@ -198,7 +209,10 @@ def _cmd_view_all(chat_id, subscribers):
         return
 
     messages = build_summary_messages(
-        candidates, is_new_subscriber=True, industries=industries, roles=roles,
+        candidates,
+        is_new_subscriber=True,
+        industries=industries,
+        roles=roles,
     )
 
     for message in messages:
@@ -235,6 +249,7 @@ def _handle_message(message, subscribers):
 
 # === callback-кнопки выбора сфер/ролей ===
 
+
 def _reset_history(chat_id):
     sent = load_sent_vacancies()
     sent = reset_subscriber_history(sent, chat_id)
@@ -245,7 +260,9 @@ def _refresh_keyboard(chat_id, message_id, subscribers, filter_key):
     spec = _FILTERS[filter_key]
     try:
         edit_message_reply_markup(
-            chat_id, message_id, spec["keyboard"](spec["get"](subscribers, chat_id)),
+            chat_id,
+            message_id,
+            spec["keyboard"](spec["get"](subscribers, chat_id)),
         )
     except Exception as error:
         print(f"не удалось обновить клавиатуру {chat_id}: {error}")
@@ -320,6 +337,7 @@ def _handle_callback_query(callback, subscribers):
 
 
 # === главный цикл опроса ===
+
 
 def poll_updates():
     offset = _load_offset()

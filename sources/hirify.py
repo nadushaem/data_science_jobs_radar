@@ -42,6 +42,7 @@ def parse_card(card, base_url):
         "source": SOURCE_NAME,
     }
 
+
 def _get(url, params=None, max_retries=4):
     for attempt in range(max_retries):
         response = requests.get(url, params=params, timeout=15)
@@ -57,6 +58,7 @@ def _get(url, params=None, max_retries=4):
 
     response.raise_for_status()
     return response
+
 
 # получаем страницу вакансии
 def get_vacancy_soup(url):
@@ -111,10 +113,7 @@ def parse_skills(soup):
     if not tags_block:
         return []
 
-    return [
-        tag.get_text(strip=True)
-        for tag in tags_block.find_all("button", class_="tag")
-    ]
+    return [tag.get_text(strip=True) for tag in tags_block.find_all("button", class_="tag")]
 
 
 # парсим относительную дату вида "9 минут назад", "2 часа назад", "3 дня назад"
@@ -131,7 +130,8 @@ def parse_relative_date(value):
         return pd.Timestamp(now - timedelta(days=1))
 
     match = re.match(
-        r"(\d+)\s+(минут\w*|час\w*|день|дня|дней|недел\w*|месяц\w*)", text,
+        r"(\d+)\s+(минут\w*|час\w*|день|дня|дней|недел\w*|месяц\w*)",
+        text,
     )
     if not match:
         return pd.NaT
@@ -198,7 +198,8 @@ def fetch_vacancies(days=7, max_pages=100):
 
                 grade_text = common_tags.get("Грейд")
                 vacancy["level"] = (
-                    guess_level(grade_text, LEVEL_TAXONOMY) if grade_text
+                    guess_level(grade_text, LEVEL_TAXONOMY)
+                    if grade_text
                     else guess_level(vacancy["title"], LEVEL_TAXONOMY)
                 )
 

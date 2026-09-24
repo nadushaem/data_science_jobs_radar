@@ -12,9 +12,17 @@ STATS_FILE = "data/vacancies_stats.pkl"
 HOURS_PER_MONTH = 168
 
 STATS_COLUMNS = [
-    "title", "company", "location", "work_format", "source",
-    "published_at", "specialization", "level", "skills",
-    "salary_min", "salary_max",
+    "title",
+    "company",
+    "location",
+    "work_format",
+    "source",
+    "published_at",
+    "specialization",
+    "level",
+    "skills",
+    "salary_min",
+    "salary_max",
     *TARGET_KEYWORDS.keys(),
     "matched_roles",
     "url",  # служебное поле — нужно для дедупликации архива между прогонами
@@ -49,6 +57,7 @@ def get_exchange_rates():
     except (requests.RequestException, ValueError, KeyError) as error:
         print(f"не удалось получить курсы цб, использую фолбэк: {error}")
         return {"RUB": 1.0, **FALLBACK_RATES}
+    return rates
 
 
 # конвертируем сумму в рубли по словарю курсов
@@ -72,9 +81,12 @@ def _normalize_salary_period(row):
         factor = HOURS_PER_MONTH
     else:
         # month или неизвестно — считаем, что уже месяц
-        factor = 1
+        factor = 1 / 12 if period == "year" else HOURS_PER_MONTH if period == "hour" else 1
 
-    to_month = lambda value: round(value * factor) if pd.notna(value) else value
+        def to_month(value):
+            return round(value * factor) if pd.notna(value) else value
+
+        return to_month(salary_min), to_month(salary_max)
     return to_month(salary_min), to_month(salary_max)
 
 

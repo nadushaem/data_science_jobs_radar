@@ -47,24 +47,33 @@ def normalize_work_format(value):
     if pd.isna(value):
         return pd.NA
 
-    if any(word in value for word in [
-        "remote",
-        "удален",
-        "удалён",
-        "дистанцион",
-    ]):
+    if any(
+        word in value
+        for word in [
+            "remote",
+            "удален",
+            "удалён",
+            "дистанцион",
+        ]
+    ):
         return "remote"
 
-    if any(word in value for word in [
-        "office",
-        "офис",
-    ]):
+    if any(
+        word in value
+        for word in [
+            "office",
+            "офис",
+        ]
+    ):
         return "onsite"
 
-    if any(word in value for word in [
-        "hybrid",
-        "гибрид",
-    ]):
+    if any(
+        word in value
+        for word in [
+            "hybrid",
+            "гибрид",
+        ]
+    ):
         return "hybrid"
 
     return value

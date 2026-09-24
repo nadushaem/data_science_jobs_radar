@@ -18,10 +18,8 @@ def find_keywords(text, keywords):
 
 # схлопываем пробелы вокруг / и - , чтобы "ai / ml" == "ai/ml"
 def _normalize_for_matching(text):
-    text = text.lower()
-    text = re.sub(r"\s*/\s*", "/", text)
-    text = re.sub(r"\s*-\s*", "-", text)
-    return text
+    text = re.sub(r"\s*/\s*", "/", text.lower())
+    return re.sub(r"\s*-\s*", "-", text)
 
 
 # поиск целевых ролей по таксономии, возвращает canonical roles
@@ -50,11 +48,7 @@ def find_excluded_roles(title, excluded_roles):
 
     title = title.lower()
 
-    return [
-        role
-        for role in excluded_roles
-        if role.lower() in title
-    ]
+    return [role for role in excluded_roles if role.lower() in title]
 
 
 # убираем html-теги из текста (например, offer_description с getmatch)

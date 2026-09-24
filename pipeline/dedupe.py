@@ -73,7 +73,9 @@ def deduplicate_vacancies(df, title_similarity_threshold=0.85):
 
     # безымянные company не группируем вместе — у каждой своя "группа из одного"
     has_company = df["company"].notna() if "company" in df.columns else pd.Series([False] * len(df))
-    group_key = df["company"].where(has_company, df.index.to_series().map(lambda i: f"__no_company_{i}"))
+    group_key = df["company"].where(
+        has_company, df.index.to_series().map(lambda i: f"__no_company_{i}")
+    )
 
     for _, group in df.groupby(group_key):
         indices = group.index.tolist()
@@ -96,5 +98,4 @@ def deduplicate_vacancies(df, title_similarity_threshold=0.85):
                 if _titles_match(title_i, title_j, title_similarity_threshold):
                     used.add(j)
 
-    result = df.loc[sorted(keep_indices)].drop(columns=["_completeness"]).reset_index(drop=True)
-    return result
+    return df.loc[sorted(keep_indices)].drop(columns=["_completeness"]).reset_index(drop=True)

@@ -28,11 +28,12 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; ds-jobs-radar/1.0)"}
 CARD_LABELS = ("Зарплата", "Опыт работы", "Позиция")
 EMPTY_VALUES = {"не указано", "не указана", "-", ""}
 
+
 def load_seen():
     if not os.path.exists(STATE_FILE):
         return {}
 
-    with open(STATE_FILE, "r", encoding="utf-8") as file:
+    with open(STATE_FILE, encoding="utf-8") as file:
         return json.load(file)
 
 
@@ -49,10 +50,7 @@ def update_seen(seen, vacancy_ids, retention_days=STATE_RETENTION_DAYS):
     now_iso = datetime.now().isoformat()
     cutoff = datetime.now() - timedelta(days=retention_days)
 
-    updated = {
-        vacancy_id: seen.get(vacancy_id, now_iso)
-        for vacancy_id in vacancy_ids
-    }
+    updated = {vacancy_id: seen.get(vacancy_id, now_iso) for vacancy_id in vacancy_ids}
 
     for vacancy_id, first_seen in seen.items():
         if vacancy_id in updated:

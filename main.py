@@ -37,7 +37,9 @@ def run():
     df = normalize_dataframe(df_raw)
     df = deduplicate_vacancies(df)
 
-    df = pd.DataFrame(classify_vacancies(df.to_dict("records"), TARGET_KEYWORDS, ROLE_TAXONOMY, EXCLUDED_ROLES))
+    df = pd.DataFrame(
+        classify_vacancies(df.to_dict("records"), TARGET_KEYWORDS, ROLE_TAXONOMY, EXCLUDED_ROLES)
+    )
     df.to_csv("data/vacancies_classify.csv", index=False, encoding="utf-8-sig")
 
     try:

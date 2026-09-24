@@ -47,13 +47,21 @@ def _build_choice_keyboard(labels, selected, toggle_prefix, reset_data, confirm_
 
 def build_industries_keyboard(selected):
     return _build_choice_keyboard(
-        INDUSTRY_LABELS, selected, "ind_toggle", "ind_reset", "ind_confirm",
+        INDUSTRY_LABELS,
+        selected,
+        "ind_toggle",
+        "ind_reset",
+        "ind_confirm",
     )
 
 
 def build_roles_keyboard(selected):
     return _build_choice_keyboard(
-        ROLE_LABELS, selected, "role_toggle", "role_reset", "role_confirm",
+        ROLE_LABELS,
+        selected,
+        "role_toggle",
+        "role_reset",
+        "role_confirm",
     )
 
 

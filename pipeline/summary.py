@@ -33,9 +33,7 @@ def _role_mask(df, roles):
         return pd.Series(True, index=df.index)
 
     wanted = set(roles)
-    return df["matched_roles"].map(
-        lambda matched: bool(wanted.intersection(matched or []))
-    )
+    return df["matched_roles"].map(lambda matched: bool(wanted.intersection(matched or [])))
 
 
 # отдельная функция, чтобы фильтровать df один раз и переиспользовать
@@ -57,6 +55,7 @@ def _capitalize_first(text):
     if not isinstance(text, str) or not text:
         return None
     return text[0].upper() + text[1:]
+
 
 def _format_level(value):
     if isinstance(value, list) and value:
@@ -84,8 +83,9 @@ def _format_vacancy(row, index):
 
 # ВАЖНО: df на входе уже должен быть отфильтрован через filter_vacancies —
 # здесь мы только собираем текст сообщений
-def build_summary_messages(df, is_new_subscriber=False, industries=None,
-                            roles=None, days=7, max_length=3500):
+def build_summary_messages(
+    df, is_new_subscriber=False, industries=None, roles=None, days=7, max_length=3500
+):
     scope = f"{_industries_title(industries)} · {_roles_title(roles)}"
 
     if is_new_subscriber:
@@ -93,10 +93,7 @@ def build_summary_messages(df, is_new_subscriber=False, industries=None,
     else:
         intro = f"🆕 Новые вакансии — {scope}"
 
-    items = [
-        _format_vacancy(row, i + 1)
-        for i, row in enumerate(df.to_dict("records"))
-    ]
+    items = [_format_vacancy(row, i + 1) for i, row in enumerate(df.to_dict("records"))]
 
     messages = []
     current = intro
