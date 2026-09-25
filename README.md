@@ -265,6 +265,7 @@ pre-commit по всему репозиторию.
 
 - [x] Pre-commit hook (ruff + базовые проверки перед коммитом)
 - [x] Unit-тесты на pipeline, bot и sources + CI
+- [ ] Добавить оценку пайплайна как ML-системы
 - [ ] Переезд хранения данных с csv / json / pkl на SQLite
 - [ ] Докеризация (Dockerfile + docker-compose вместо setup.sh на голом сервере)
 - [ ] Логирование (logging с уровнями вместо print)
