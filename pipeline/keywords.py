@@ -480,9 +480,21 @@ ROLE_TAXONOMY = {
         "ml разработчик",
         "ml developer",
     ],
-    "ai_ml_engineer": [
-        "ai/ml engineer",
+    "ai_engineer": [
+        "ai engineer",
         "ai/ml",
+    ],
+    "dl_engineer": [
+        "deep learning engineer",
+        "deep-learning engineer",
+        "deep learning developer",
+        "dl engineer",
+        "dl-инженер",
+        "dl инженер",
+        "dl developer",
+        "dl-разработчик",
+        "dl разработчик",
+        "инженер глубокого обучения",
     ],
     "data_governance": [
         "data governance analyst",
@@ -548,6 +560,7 @@ ROLE_LABELS = {
     "data_scientist": "Data Scientist",
     "ml_engineer": "ML Engineer",
     "ai_ml_engineer": "AI/ML Engineer",
+    "dl_engineer": "DL Engineer",
     "data_engineer": "Data Engineer",
     "data_analyst": "Data Analyst",
     "cv_engineer": "CV Engineer",
