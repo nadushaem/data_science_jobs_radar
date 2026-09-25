@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 from pipeline.classify import classify_vacancies
 from pipeline.dedupe import deduplicate_vacancies
-from pipeline.keywords import EXCLUDED_ROLES, ROLE_TAXONOMY, TARGET_KEYWORDS
+from pipeline.keywords import EXCLUDED_ROLES, INDUSTRY_EXCLUDES, ROLE_TAXONOMY, TARGET_KEYWORDS
 from pipeline.normalize import normalize_dataframe
 from pipeline.stats import append_stats, build_stats_dataset, get_exchange_rates
 from sources import datasecrets, geekjob, getmatch, hirify
@@ -36,9 +36,10 @@ def run(days=30):
     df = normalize_dataframe(df)
     df = deduplicate_vacancies(df)
 
-    df = pd.DataFrame(
-        classify_vacancies(df.to_dict("records"), TARGET_KEYWORDS, ROLE_TAXONOMY, EXCLUDED_ROLES)
+    records = classify_vacancies(
+        df.to_dict("records"), TARGET_KEYWORDS, ROLE_TAXONOMY, EXCLUDED_ROLES, INDUSTRY_EXCLUDES
     )
+    df = pd.DataFrame(records)
 
     for category in TARGET_KEYWORDS:
         df[category] = df[category].astype(bool)

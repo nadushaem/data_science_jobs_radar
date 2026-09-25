@@ -1,4 +1,41 @@
 TARGET_KEYWORDS = {
+    "it": [
+        "it-компания",
+        "ит-компания",
+        "it компания",
+        "аккредитованная it",
+        "российский вендор",
+        "b2b saas",
+        "saas-платформ",
+        "облачный провайдер",
+        "облачная платформа",
+        "кибербезопасност",
+        # bigtech (дочки из других сфер отсекаются через INDUSTRY_EXCLUDES)
+        "яндекс",
+        "yandex",
+        "вконтакте",
+        "vk tech",
+        "vk cloud",
+        "касперск",
+        "kaspersky",
+        "positive technologies",
+        "позитив текнолоджиз",
+        "2гис",
+        "2gis",
+        # компании
+        "yadro",
+        "selectel",
+        "селектел",
+        "cloud.ru",
+        "группа астра",
+        "astra linux",
+        "скб контур",
+        "kontur",
+        "ланит",
+        "инфосистемы джет",
+        "jet infosystems",
+        "huawei",
+    ],
     "healthtech": [
         "healthtech",
         "health tech",
@@ -312,7 +349,7 @@ TARGET_KEYWORDS = {
         "видеохостинг",
         "издательство",
         "подкаст",
-        "ivi.ru",
+        "ivi",
         "окко",
         "okko",
         "кинопоиск",
@@ -374,6 +411,7 @@ TARGET_KEYWORDS = {
 }
 
 INDUSTRY_LABELS = {
+    "it": "IT / Bigtech",
     "healthtech": "Healthtech",
     "medtech": "Medtech",
     "femtech": "Femtech",
@@ -389,6 +427,32 @@ INDUSTRY_LABELS = {
     "govtech": "Госсектор",
     "traveltech": "Traveltech",
     "cybersecurity": "Кибербезопасность",
+}
+
+# фразы, которые не считаются попаданием в сферу. если фраза есть в company/title —
+# вакансия целиком не из этой сферы (дочка bigtech), если только в описании —
+# фраза вырезается из текста, остальные ключевые слова продолжают работать
+INDUSTRY_EXCLUDES = {
+    "it": [
+        "яндекс маркет",
+        "yandex market",
+        "яндекс еда",
+        "yandex eats",
+        "яндекс лавка",
+        "яндекс доставка",
+        "yandex delivery",
+        "яндекс go",
+        "яндекс такси",
+        "yandex taxi",
+        "яндекс пэй",
+        "yandex pay",
+        "яндекс банк",
+        "яндекс практикум",
+        "яндекс директ",
+        "яндекс музыка",
+        "яндекс афиша",
+        "яндекс путешествия",
+    ],
 }
 
 # человекочитаемые названия сфер — используются и в кнопках бота,
@@ -470,6 +534,7 @@ ROLE_TAXONOMY = {
         "дата-инженер",
         "инженер данных",
         "data engineering",
+        "data_platform_engineer",
     ],
     "mlops_engineer": [
         "mlops",
