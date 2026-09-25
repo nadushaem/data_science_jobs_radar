@@ -33,6 +33,9 @@ def test_excluded_roles_match_whole_words():
     # "ios" внутри "portfolios" — не повод выкидывать вакансию
     title = "Data Scientist (Credit Portfolios)"
     assert parsing.find_excluded_roles(title, EXCLUDED_ROLES) == []
+    assert parsing.find_excluded_roles("Content Manager (AI/ML)", EXCLUDED_ROLES) == [
+        "content manager"
+    ]
 
 
 @pytest.mark.parametrize(

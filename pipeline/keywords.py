@@ -112,6 +112,9 @@ TARGET_KEYWORDS = {
         "бкс",
         "финам",
         "цифра брокер",
+        "псб",
+        "dsk bank",
+        "(банк)",
     ],
     "edtech": [
         "edtech",
@@ -458,6 +461,7 @@ EXCLUDED_ROLES = [
     "qa engineer",
     "ui/ux",
     "ux/ui",
+    "content manager",
 ]
 
 LEVEL_TAXONOMY = {
