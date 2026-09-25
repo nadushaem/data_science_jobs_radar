@@ -480,9 +480,38 @@ ROLE_TAXONOMY = {
         "ml разработчик",
         "ml developer",
     ],
-    "ai_ml_engineer": [
+    "ai_engineer": [
         "ai engineer",
+        "ai-engineer",
+        "ai-инженер",
+        "ai инженер",
+        "ии-инженер",
+        "ии инженер",
+        "инженер ии",
+        "инженер искусственного интеллекта",
+        "ai developer",
+        "ai-разработчик",
+        "ai разработчик",
+        "ии-разработчик",
+        "разработчик ии",
         "ai/ml",
+        "ml/ai",
+        # llm / genai
+        "llm engineer",
+        "llm-инженер",
+        "llm инженер",
+        "llm developer",
+        "llm-разработчик",
+        "genai engineer",
+        "gen ai engineer",
+        "generative ai engineer",
+        "prompt engineer",
+        "промпт-инженер",
+        # агенты — целыми словоформами из-за \b
+        "ai-агентов",
+        "ии-агентов",
+        "llm-агентов",
+        "ai agents engineer",
     ],
     "dl_engineer": [
         "deep learning engineer",
@@ -559,7 +588,7 @@ ROLE_TAXONOMY = {
 ROLE_LABELS = {
     "data_scientist": "Data Scientist",
     "ml_engineer": "ML Engineer",
-    "ai_ml_engineer": "AI/ML Engineer",
+    "ai_engineer": "AI Engineer",
     "dl_engineer": "DL Engineer",
     "data_engineer": "Data Engineer",
     "data_analyst": "Data Analyst",
@@ -570,6 +599,7 @@ ROLE_LABELS = {
     "data_quality": "Data Quality",
     "mlops_engineer": "MLOps Engineer",
 }
+ROLE_RENAMES = {"ai_ml_engineer": "ai_engineer"}
 
 EXCLUDED_ROLES = [
     "frontend",

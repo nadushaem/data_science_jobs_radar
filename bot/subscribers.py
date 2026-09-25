@@ -1,7 +1,14 @@
 import json
 import os
 
+from pipeline.keywords import ROLE_RENAMES
+
 SUBSCRIBERS_FILE = "data/subscribers.json"
+
+
+# старые ключи ролей переводим на новые, файл перезапишется при ближайшем save
+def _migrate_roles(roles):
+    return sorted({ROLE_RENAMES.get(role, role) for role in roles or []})
 
 
 def load_subscribers():
@@ -17,7 +24,7 @@ def load_subscribers():
     return {
         int(chat_id): {
             "industries": data.get("industries") or [],
-            "roles": data.get("roles") or [],
+            "roles": _migrate_roles(data.get("roles")),
         }
         for chat_id, data in raw.items()
     }
