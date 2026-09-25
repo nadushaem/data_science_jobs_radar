@@ -30,7 +30,6 @@ data analyst / аналитик данных, data governance / quality.
 - bi-аналитик → 0
 - fullstack analyst → 0
 - database engineer → 0
-- разметчик данных → 1, data quality
 - rl_engineer → 1, research scientist + ai_engineer / dl_engineer / ml-engineer (смотреть по описанию)
 - «python-разработчик», если по описанию основная работа — обучение моделей → 1
 
