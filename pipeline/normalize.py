@@ -27,14 +27,10 @@ def normalize_location(value):
 
     aliases = {
         "мск": "москва",
+        "спб": "санкт-петербург",
         "spb": "санкт-петербург",
         "с.петербург": "санкт-петербург",
         "петербург": "санкт-петербург",
-        "москве": "москва",
-        "санкт-петербурге": "санкт-петербург",
-        "петербурге": "санкт-петербург",
-        "новосибирске": "новосибирск",
-        "екатеринбурге": "екатеринбург",
     }
 
     return aliases.get(value, value)
@@ -47,34 +43,12 @@ def normalize_work_format(value):
     if pd.isna(value):
         return pd.NA
 
-    if any(
-        word in value
-        for word in [
-            "remote",
-            "удален",
-            "удалён",
-            "дистанцион",
-        ]
-    ):
-        return "remote"
-
-    if any(
-        word in value
-        for word in [
-            "office",
-            "офис",
-        ]
-    ):
-        return "onsite"
-
-    if any(
-        word in value
-        for word in [
-            "hybrid",
-            "гибрид",
-        ]
-    ):
+    if any(word in value for word in ["hybrid", "гибрид"]):
         return "hybrid"
+    if any(word in value for word in ["remote", "удален", "удалён", "дистанцион"]):
+        return "remote"
+    if any(word in value for word in ["office", "офис"]):
+        return "onsite"
 
     return value
 

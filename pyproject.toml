@@ -17,3 +17,12 @@ ignore = ["BLE001", "DTZ005"]
 [tool.ruff.lint.isort]
 # иначе ruff может принять bot/pipeline/sources за сторонние пакеты
 known-first-party = ["bot", "pipeline", "sources"]
+
+[tool.ruff.lint.per-file-ignores]
+# в тестах фиксированные даты без таймзоны — это нормально
+"tests/*" = ["DTZ"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]   # чтобы импорты bot/pipeline/sources работали без установки пакета
+addopts = "-ra"

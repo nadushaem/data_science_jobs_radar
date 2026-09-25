@@ -81,12 +81,11 @@ def _normalize_salary_period(row):
         factor = HOURS_PER_MONTH
     else:
         # month или неизвестно — считаем, что уже месяц
-        factor = 1 / 12 if period == "year" else HOURS_PER_MONTH if period == "hour" else 1
+        factor = 1
 
-        def to_month(value):
-            return round(value * factor) if pd.notna(value) else value
+    def to_month(value):
+        return round(value * factor) if pd.notna(value) else value
 
-        return to_month(salary_min), to_month(salary_max)
     return to_month(salary_min), to_month(salary_max)
 
 

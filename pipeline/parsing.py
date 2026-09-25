@@ -46,9 +46,12 @@ def find_excluded_roles(title, excluded_roles):
     if not title:
         return []
 
-    title = title.lower()
-
-    return [role for role in excluded_roles if role.lower() in title]
+    title = _normalize_for_matching(title)
+    return [
+        role
+        for role in excluded_roles
+        if re.search(r"\b" + re.escape(_normalize_for_matching(role)) + r"\b", title)
+    ]
 
 
 # убираем html-теги из текста (например, offer_description с getmatch)
