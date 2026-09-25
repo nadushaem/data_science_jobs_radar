@@ -16,7 +16,7 @@
 Смотрим, чем человек будет заниматься, а не только на слова в заголовке.
 
 **1**, если основная работа — модели, данные или аналитика данных:
-data scientist, ml / ai-ml engineer, ai engineer (llm-приложения, rag, агенты),
+data scientist, ml / ai engineer, ai engineer (llm-приложения, rag, агенты),
 nlp / cv engineer, research scientist, mlops, data engineer (в т.ч. dwh / etl),
 data analyst / аналитик данных, data governance / quality.
 Руководящие позиции в этих направлениях (lead, head of data science) — тоже 1.

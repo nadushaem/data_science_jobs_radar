@@ -19,6 +19,9 @@ def test_find_keywords_is_case_insensitive():
         ("Deep Learning Engineer", ["dl_engineer"]),
         ("Senior DL - инженер", ["dl_engineer"]),
         ("Frontend Developer", []),
+        ("AI Engineer", ["ai_engineer"]),
+        ("LLM-инженер", ["ai_engineer"]),
+        ("Разработчик AI-агентов", ["ai_engineer"]),
         (None, []),
     ],
 )
@@ -26,8 +29,8 @@ def test_find_roles(title, expected):
     assert parsing.find_roles(title, ROLE_TAXONOMY) == expected
 
 
-def test_find_roles_ai_ml_with_spaces():
-    assert "ai_ml_engineer" in parsing.find_roles("AI / ML Engineer", ROLE_TAXONOMY)
+def test_find_roles_ai_with_spaces():
+    assert "ai_engineer" in parsing.find_roles("AI / ML Engineer", ROLE_TAXONOMY)
 
 
 def test_excluded_roles_match_whole_words():
