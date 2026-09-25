@@ -78,7 +78,7 @@
      backend, devops, qa и т.д.);
   3. в тексте вакансии (title + company + description + specialization +
      industry + skills) нашлось хотя бы одно ключевое слово хотя бы одной
-     сферы из `TARGET_KEYWORDS` (healthtech, medtech, femtech, fintech,
+     сферы из `TARGET_KEYWORDS` (itб healthtech, medtech, femtech, fintech,
      edtech, hrtech, adtech, gamedev, logistics, ecommerce, telecom, media,
      govtech, traveltech, cybersecurity).
 
