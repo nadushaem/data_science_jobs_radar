@@ -480,7 +480,7 @@ ROLE_TAXONOMY = {
         "ml разработчик",
         "ml developer",
     ],
-    "ai_engineer": [
+    "ai_ml_engineer": [
         "ai engineer",
         "ai/ml",
     ],

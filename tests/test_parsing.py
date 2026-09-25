@@ -16,6 +16,8 @@ def test_find_keywords_is_case_insensitive():
         ("ML - инженер", ["ml_engineer"]),
         ("Data Analyst", ["data_analyst"]),
         ("HTML Engineer", []),  # "ml engineer" внутри слова не считается
+        ("Deep Learning Engineer", ["dl_engineer"]),
+        ("Senior DL - инженер", ["dl_engineer"]),
         ("Frontend Developer", []),
         (None, []),
     ],
