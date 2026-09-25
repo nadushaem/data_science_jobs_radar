@@ -7,8 +7,8 @@
 и присылает новые вакансии каждые 4 часа (если они есть). Каждый подписчик
 настраивает свой набор сфер и ролей через кнопки в боте.
 
-Пример сбора вакансий за неделю: всего 324 вакансии → 319 после дедупликации →
-5 попадает под DS-роли.
+Пример сбора вакансий за неделю (конец сентября 2026): всего 375 вакансий →
+357 после дедупликации → 49 с DS-ролью → 41 в целевых сферах.
 
 ## Как это устроено
 
@@ -79,7 +79,8 @@
   3. в тексте вакансии (title + company + description + specialization +
      industry + skills) нашлось хотя бы одно ключевое слово хотя бы одной
      сферы из `TARGET_KEYWORDS` (healthtech, medtech, femtech, fintech,
-     edtech, hrtech, adtech, gamedev, logistics, ecommerce, telecom, media).
+     edtech, hrtech, adtech, gamedev, logistics, ecommerce, telecom, media,
+     govtech, traveltech, cybersecurity).
 
   Для каждой сферы в вакансию добавляется отдельная колонка со списком
   найденных ключевых слов. По ней `summary.py` фильтрует вакансии для
