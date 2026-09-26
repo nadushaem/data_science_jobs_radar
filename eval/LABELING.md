@@ -23,13 +23,14 @@ data analyst / аналитик данных, data governance / quality.
 
 **0**: backend / frontend / mobile / devops / qa, даже если в описании есть ml;
 продакт-менеджеры, контент-менеджеры, маркетинг с «ai» в названии;
-системные, бизнес-, 1с-аналитики; разметчики данных.
+системные, бизнес-, 1с-аналитики.
 
 **Пограничные — решение зафиксировано здесь:**
 - product analyst → 0
 - bi-аналитик → 0
 - fullstack analyst → 0
 - database engineer → 0
+- разметчик данных → 1, data quality 
 - rl_engineer → 1, research scientist + ai_engineer / dl_engineer / ml-engineer (смотреть по описанию)
 - «python-разработчик», если по описанию основная работа — обучение моделей → 1
 
