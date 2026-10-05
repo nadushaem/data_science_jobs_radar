@@ -35,6 +35,8 @@ TARGET_KEYWORDS = {
         "инфосистемы джет",
         "jet infosystems",
         "huawei",
+        "gigachat",
+        "гигачат",
     ],
     "healthtech": [
         "healthtech",
@@ -453,6 +455,17 @@ INDUSTRY_EXCLUDES = {
         "яндекс афиша",
         "яндекс путешествия",
     ],
+    "fintech": [
+        "gigachat",
+        "гигачат",
+        "сберздоровье",
+        "сбер здоровье",
+        "сбер подбор",
+        "сбермаркет",
+        "сбермегамаркет",
+        "sber ads",
+        "сберадс",
+    ],
 }
 
 # человекочитаемые названия сфер — используются и в кнопках бота,
@@ -479,6 +492,7 @@ ROLE_TAXONOMY = {
         "ml-разработчик",
         "ml разработчик",
         "ml developer",
+        "head of ml",
     ],
     "ai_engineer": [
         "ai engineer",
@@ -507,11 +521,14 @@ ROLE_TAXONOMY = {
         "generative ai engineer",
         "prompt engineer",
         "промпт-инженер",
-        # агенты — целыми словоформами из-за \b
         "ai-агентов",
         "ии-агентов",
         "llm-агентов",
         "ai agents engineer",
+        "разработчик ai",
+        "разработчик llm",
+        "head of ai",
+        "архитектор llm",
     ],
     "dl_engineer": [
         "deep learning engineer",
@@ -543,11 +560,14 @@ ROLE_TAXONOMY = {
         "специалист по качеству данных",
         "аналитик по качеству данных",
         "инженер по качеству данных",
+        "разметчик данных",
     ],
     "research_scientist": [
         "research scientist",
         "researcher in ai",
         "researcher in ml",
+        "rl engineer",
+        "rl-engineer",
     ],
     "nlp_engineer": [
         "nlp engineer",
@@ -568,6 +588,7 @@ ROLE_TAXONOMY = {
         "дата аналитик",
         "дата-аналитик",
         "аналитик данных",
+        "аналитике данных",
     ],
     "data_engineer": [
         "data engineer",
@@ -575,7 +596,7 @@ ROLE_TAXONOMY = {
         "дата-инженер",
         "инженер данных",
         "data engineering",
-        "data_platform_engineer",
+        "data platform engineer",
     ],
     "mlops_engineer": [
         "mlops",
@@ -616,6 +637,7 @@ EXCLUDED_ROLES = [
     "ui/ux",
     "ux/ui",
     "content manager",
+    "системный аналитик",
 ]
 
 LEVEL_TAXONOMY = {

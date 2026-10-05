@@ -22,6 +22,11 @@ def test_find_keywords_is_case_insensitive():
         ("AI Engineer", ["ai_engineer"]),
         ("LLM-инженер", ["ai_engineer"]),
         ("Разработчик AI-агентов", ["ai_engineer"]),
+        ("Senior Data Platform Engineer", ["data_engineer"]),
+        ("Senior RL-Engineer (GigaChat Vision)", ["research_scientist"]),
+        ("Head of ML (VLM)", ["ml_engineer"]),
+        ("Разметчик данных", ["data_quality"]),
+        ("Руководитель направления по аналитике данных", ["data_analyst"]),
         (None, []),
     ],
 )
@@ -40,6 +45,9 @@ def test_excluded_roles_match_whole_words():
     assert parsing.find_excluded_roles(title, EXCLUDED_ROLES) == []
     assert parsing.find_excluded_roles("Content Manager (AI/ML)", EXCLUDED_ROLES) == [
         "content manager"
+    ]
+    assert parsing.find_excluded_roles("Системный аналитик MLOps", EXCLUDED_ROLES) == [
+        "системный аналитик"
     ]
 
 

@@ -49,3 +49,12 @@ def test_excluded_phrase_in_description_is_cut(make_vacancy):
     # упоминание партнёра вырезается, но сама компания остаётся в it
     vacancy = make_vacancy(company="yadro", description="интеграция с яндекс маркет")
     assert _classify(vacancy)["it"] == ["yadro"]
+
+
+def test_sber_product_unit_is_not_fintech(make_vacancy):
+    # gigachat — продукт сбера, но не банковский: по правилам разметки это it
+    result = _classify(make_vacancy(company="сбер", title="ml engineer (gigachat tts)"))
+    assert (result["it"], result["fintech"]) == (["gigachat"], [])
+
+    # без названного подразделения сбер остается финтехом
+    assert _classify(make_vacancy(company="сбер"))["fintech"] == ["сбер"]
