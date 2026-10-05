@@ -328,7 +328,8 @@ python -m eval.evaluate --gold v2 --rev taxonomy-dev-v1   # когда появ�
 
 - [x] Pre-commit hook (ruff + базовые проверки перед коммитом)
 - [x] Unit-тесты на pipeline, bot и sources + CI
-- [ ] Добавить оценку пайплайна как ML-системы
+- [x] Оценка классификатора: правила разметки, gold set v1 (dev), метрики с bootstrap-ДИ
+- [ ] Отложенный test (gold_v2) и LLM zero-shot baseline
 - [ ] Переезд хранения данных с csv / json / pkl на SQLite
 - [ ] Докеризация (Dockerfile + docker-compose вместо setup.sh на голом сервере)
 - [ ] Логирование (logging с уровнями вместо print)
