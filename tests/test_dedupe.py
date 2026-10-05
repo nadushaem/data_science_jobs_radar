@@ -21,3 +21,16 @@ def test_deduplicate_keeps_most_complete_version(make_vacancy):
     result = deduplicate_vacancies(pd.DataFrame(rows))
 
     assert sorted(result["url"]) == ["b", "c", "d", "e"]
+
+
+def test_cross_source_duplicates_by_full_title(make_vacancy):
+    rows = [
+        make_vacancy(url="a", company="сбер", title="data analyst", description="подробно"),
+        make_vacancy(url="b", company="пао сбербанк", title="data analyst"),  # тот же сбер
+        make_vacancy(url="c", company=None, title="data analyst"),  # компания скрыта — не склеиваем
+        make_vacancy(url="d", company="ozon", title="data analyst"),  # другая компания
+    ]
+    result = deduplicate_vacancies(pd.DataFrame(rows)).set_index("url")
+
+    assert sorted(result.index) == ["a", "c", "d"]
+    assert result.loc["a", "duplicate_urls"] == ["b"]

@@ -44,3 +44,11 @@ def test_subscribers_migrate_renamed_roles(tmp_path, monkeypatch):
     monkeypatch.setattr(subscribers, "SUBSCRIBERS_FILE", str(path))
 
     assert subscribers.load_subscribers()[42]["roles"] == ["ai_engineer"]
+
+
+def test_duplicate_urls_count_as_sent():
+    df = pd.DataFrame({"url": ["a"], "duplicate_urls": [["b"]]})
+    sent = history.mark_as_sent({}, 42, ["b"])  # раньше ушла версия с другого борда
+
+    assert history.get_new_vacancies_for_subscriber(df, sent, 42).empty
+    assert history.all_vacancy_urls(df) == ["a", "b"]

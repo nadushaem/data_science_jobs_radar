@@ -41,11 +41,26 @@ def prune_sent_vacancies(sent, retention_days=SENT_RETENTION_DAYS):
     return pruned
 
 
-# новые для конкретного подписчика вакансии — те, что ему ещё не отправляли.
+# все url вакансии: свой + url дублей с других бордов (см. dedupe.py).
+# в старых снэпшотах колонки duplicate_urls нет — тогда только свой url
+def _vacancy_urls(row):
+    duplicates = row.get("duplicate_urls")
+    return [row.get("url"), *(duplicates if isinstance(duplicates, list) else [])]
+
+
+def all_vacancy_urls(df):
+    return [url for _, row in df.iterrows() for url in _vacancy_urls(row) if isinstance(url, str)]
+
+
+# новые для подписчика вакансии — те, у которых ни один url (свой или дубля) ещё не отправлялся.
 # для нового подписчика (его нет в реестре) вернёт все is_target вакансии
 def get_new_vacancies_for_subscriber(target_df, sent, chat_id):
+    if target_df.empty:
+        return target_df
+
     seen_urls = set(sent.get(str(chat_id), {}).keys())
-    return target_df[~target_df["url"].isin(seen_urls)]
+    is_seen = target_df.apply(lambda row: bool(seen_urls.intersection(_vacancy_urls(row))), axis=1)
+    return target_df[~is_seen]
 
 
 # отмечаем url как отправленные конкретному подписчику

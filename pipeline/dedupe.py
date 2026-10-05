@@ -1,4 +1,5 @@
 import ast
+import re
 from difflib import SequenceMatcher
 
 import pandas as pd
@@ -58,7 +59,42 @@ def _completeness_score(row):
     return score
 
 
-# убираем дубли: сначала точные по url, потом похожие по (company, title)
+# компания без формы собственности, кавычек и разных дефисов: «ПАО «Сбер»» → «сбер»
+def _company_key(value):
+    if not isinstance(value, str):
+        return ""
+    value = re.sub(r"\b(ооо|ао|пао|зао|llc|ltd|inc)\b", " ", value.lower())
+    return re.sub(r"[\W_]+", "", value)
+
+
+# одна компания с разных бордов: «сбер» / «пао сбербанк». если компании нет хотя бы
+# у одной версии — не склеиваем: при общих названиях это скорее разные вакансии
+def _same_company(a, b):
+    a, b = _company_key(a), _company_key(b)
+    return bool(a and b) and (a.startswith(b) or b.startswith(a))
+
+
+# дубли из разных источников: полностью совпадающий title + совместимая компания.
+# df отсортирован по полноте, поэтому первая встреченная версия — лучшая
+def _drop_cross_source_duplicates(df, merged):
+    keep, kept_by_title = [], {}
+
+    for i in df.index:
+        title, company = df.at[i, "title"], df.at[i, "company"]
+        candidates = kept_by_title.get(title, [])
+        same = [j for j in candidates if _same_company(df.at[j, "company"], company)]
+
+        if isinstance(title, str) and same:
+            merged.setdefault(same[0], []).extend([df.at[i, "url"], *merged.pop(i, [])])
+        else:
+            keep.append(i)
+            kept_by_title.setdefault(title, []).append(i)
+
+    return df.loc[keep]
+
+
+# убираем дубли: точные по url, похожие по (company, title), затем одинаковые title
+# с разных бордов. url выкинутых дублей сохраняем в duplicate_urls — их учитывает история рассылок
 def deduplicate_vacancies(df, title_similarity_threshold=0.85):
     df = df.copy()
 
@@ -70,6 +106,7 @@ def deduplicate_vacancies(df, title_similarity_threshold=0.85):
 
     keep_indices = []
     used = set()
+    merged = {}  # индекс оставленной вакансии → url её дублей
 
     # безымянные company не группируем вместе — у каждой своя "группа из одного"
     has_company = df["company"].notna() if "company" in df.columns else pd.Series([False] * len(df))
@@ -86,16 +123,17 @@ def deduplicate_vacancies(df, title_similarity_threshold=0.85):
 
             keep_indices.append(i)
             used.add(i)
-
             title_i = df.loc[i, "title"]
 
             for j in indices:
                 if j in used:
                     continue
 
-                title_j = df.loc[j, "title"]
-
-                if _titles_match(title_i, title_j, title_similarity_threshold):
+                if _titles_match(title_i, df.loc[j, "title"], title_similarity_threshold):
                     used.add(j)
+                    merged.setdefault(i, []).append(df.loc[j, "url"])
 
-    return df.loc[sorted(keep_indices)].drop(columns=["_completeness"]).reset_index(drop=True)
+    df = _drop_cross_source_duplicates(df.loc[sorted(keep_indices)], merged)
+    df["duplicate_urls"] = [merged.get(i, []) for i in df.index]
+
+    return df.drop(columns=["_completeness"]).reset_index(drop=True)

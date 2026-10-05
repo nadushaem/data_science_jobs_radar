@@ -10,6 +10,7 @@ from bot.api import (
     send_message,
 )
 from bot.history import (
+    all_vacancy_urls,
     get_new_vacancies_for_subscriber,
     load_sent_vacancies,
     mark_as_sent,
@@ -104,7 +105,7 @@ def _deliver_vacancies(chat_id, industries, roles, target_df, sent):
         send_message(chat_id, message)
         time.sleep(1)  # rate limit telegram
 
-    sent = mark_as_sent(sent, chat_id, candidates["url"].dropna())
+    sent = mark_as_sent(sent, chat_id, all_vacancy_urls(candidates))
     return sent, True
 
 
