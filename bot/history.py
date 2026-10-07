@@ -1,48 +1,25 @@
-import json
-import os
-from datetime import datetime, timedelta
+from storage.db import connect, now_iso
 
-SENT_FILE = "data/sent_vacancies.json"
-SENT_RETENTION_DAYS = 30  # с запасом больше, чем окно фетча (7 дней)
+# журнал отправок живет в таблице deliveries и никогда не чистится.
+# «уже отправленные» подписчику — только отправки после его history_reset_at
 
 
-# реестр по подписчикам: {chat_id (str): {url: дата_отправки в iso}}
-def load_sent_vacancies():
-    if not os.path.exists(SENT_FILE):
-        return {}
-
-    with open(SENT_FILE, encoding="utf-8") as file:
-        return json.load(file)
-
-
-def save_sent_vacancies(sent):
-    os.makedirs(os.path.dirname(SENT_FILE), exist_ok=True)
-
-    with open(SENT_FILE, "w", encoding="utf-8") as file:
-        json.dump(sent, file, ensure_ascii=False, indent=2)
-
-
-# чистим записи старше retention_days у каждого подписчика,
-# чтобы файл не рос бесконечно
-def prune_sent_vacancies(sent, retention_days=SENT_RETENTION_DAYS):
-    cutoff = datetime.now() - timedelta(days=retention_days)
-    pruned = {}
-
-    for chat_id, urls in sent.items():
-        kept = {
-            url: sent_at
-            for url, sent_at in urls.items()
-            if datetime.fromisoformat(sent_at) >= cutoff
-        }
-
-        if kept:
-            pruned[chat_id] = kept
-
-    return pruned
+# url, которые подписчик уже видел
+def get_seen_urls(chat_id):
+    with connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT d.url
+            FROM deliveries AS d
+            JOIN subscribers AS s ON s.chat_id = d.chat_id
+            WHERE d.chat_id = ? AND d.sent_at >= coalesce(s.history_reset_at, '')
+            """,
+            (chat_id,),
+        ).fetchall()
+    return {row["url"] for row in rows}
 
 
-# все url вакансии: свой + url дублей с других бордов (см. dedupe.py).
-# в старых снэпшотах колонки duplicate_urls нет — тогда только свой url
+# все url вакансии: свой + url дублей с других бордов (см. dedupe.py)
 def _vacancy_urls(row):
     duplicates = row.get("duplicate_urls")
     return [row.get("url"), *(duplicates if isinstance(duplicates, list) else [])]
@@ -52,30 +29,26 @@ def all_vacancy_urls(df):
     return [url for _, row in df.iterrows() for url in _vacancy_urls(row) if isinstance(url, str)]
 
 
-# новые для подписчика вакансии — те, у которых ни один url (свой или дубля) ещё не отправлялся.
-# для нового подписчика (его нет в реестре) вернёт все is_target вакансии
-def get_new_vacancies_for_subscriber(target_df, sent, chat_id):
-    if target_df.empty:
+# новые для подписчика вакансии — те, у которых ни один url (свой или дубля) еще не отправлялся
+def get_new_vacancies_for_subscriber(target_df, seen_urls):
+    if target_df.empty or not seen_urls:
         return target_df
 
-    seen_urls = set(sent.get(str(chat_id), {}).keys())
     is_seen = target_df.apply(lambda row: bool(seen_urls.intersection(_vacancy_urls(row))), axis=1)
     return target_df[~is_seen]
 
 
-# отмечаем url как отправленные конкретному подписчику
-def mark_as_sent(sent, chat_id, urls):
-    chat_key = str(chat_id)
-    now_iso = datetime.now().isoformat()
-
-    chat_sent = sent.setdefault(chat_key, {})
-    chat_sent.update({url: now_iso for url in urls if url})
-
-    return sent
+# каждая отправка — новая строка; dict.fromkeys убирает повторы, сохраняя порядок
+def mark_as_sent(chat_id, urls):
+    now = now_iso()
+    rows = [(chat_id, url, now) for url in dict.fromkeys(urls) if url]
+    with connect() as conn:
+        conn.executemany("INSERT INTO deliveries (chat_id, url, sent_at) VALUES (?, ?, ?)", rows)
 
 
-# сбрасываем историю отправленных вакансий конкретному подписчику —
-# нужно при смене сфер, чтобы под новый фильтр видео было "с нуля"
-def reset_subscriber_history(sent, chat_id):
-    sent.pop(str(chat_id), None)
-    return sent
+# при смене фильтров историю не удаляем, а отмечаем момент сброса
+def reset_subscriber_history(chat_id):
+    with connect() as conn:
+        conn.execute(
+            "UPDATE subscribers SET history_reset_at = ? WHERE chat_id = ?", (now_iso(), chat_id)
+        )

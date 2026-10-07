@@ -1,5 +1,3 @@
-import json
-import os
 import re
 import time
 from datetime import datetime, timedelta
@@ -11,15 +9,11 @@ from bs4 import BeautifulSoup
 
 from pipeline.keywords import LEVEL_TAXONOMY, SKILLS_VOCABULARY
 from pipeline.parsing import find_keywords, guess_level, parse_salary
+from storage.db import connect, now_iso
 
 SOURCE_NAME = "datasecrets"
 BASE_URL = "https://datasecrets.ru"
 JOBS_URL = f"{BASE_URL}/jobs"
-
-# у источника нет дат публикации — храним, когда вакансия впервые
-# попалась нам на глаза, и дальше работаем с этим как с published_at
-STATE_FILE = "data/datasecrets_seen.json"
-STATE_RETENTION_DAYS = 90
 
 MIN_REQUEST_DELAY = 2
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; ds-jobs-radar/1.0)"}
@@ -29,36 +23,19 @@ CARD_LABELS = ("Зарплата", "Опыт работы", "Позиция")
 EMPTY_VALUES = {"не указано", "не указана", "-", ""}
 
 
-def load_seen():
-    if not os.path.exists(STATE_FILE):
-        return {}
-
-    with open(STATE_FILE, encoding="utf-8") as file:
-        return json.load(file)
-
-
-def save_seen(seen):
-    os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
-
-    with open(STATE_FILE, "w", encoding="utf-8") as file:
-        json.dump(seen, file, ensure_ascii=False, indent=2)
-
-
-# для вакансий с доски: известные — со старой датой, новые — с текущей.
-# пропавшие с доски держим ещё retention_days, вдруг вернутся
-def update_seen(seen, vacancy_ids, retention_days=STATE_RETENTION_DAYS):
-    now_iso = datetime.now().isoformat()
-    cutoff = datetime.now() - timedelta(days=retention_days)
-
-    updated = {vacancy_id: seen.get(vacancy_id, now_iso) for vacancy_id in vacancy_ids}
-
-    for vacancy_id, first_seen in seen.items():
-        if vacancy_id in updated:
-            continue
-        if datetime.fromisoformat(first_seen) >= cutoff:
-            updated[vacancy_id] = first_seen
-
-    return updated
+# у источника нет дат публикации — храним в таблице datasecrets_seen, когда вакансия
+# впервые попалась нам на глаза, и дальше работаем с этим как с published_at.
+# новые id получают текущее время, у известных дата не меняется. записи не удаляем
+def update_seen(vacancy_ids):
+    now = now_iso()
+    with connect() as conn:
+        conn.executemany(
+            "INSERT INTO datasecrets_seen (vacancy_id, first_seen_at) VALUES (?, ?) "
+            "ON CONFLICT (vacancy_id) DO NOTHING",
+            [(vacancy_id, now) for vacancy_id in vacancy_ids],
+        )
+        rows = conn.execute("SELECT vacancy_id, first_seen_at FROM datasecrets_seen").fetchall()
+    return {row["vacancy_id"]: row["first_seen_at"] for row in rows}
 
 
 def _get(url, max_retries=4):
@@ -193,8 +170,7 @@ def fetch_vacancies(days=7, max_vacancies=None):
     soup = BeautifulSoup(_get(JOBS_URL).text, "html.parser")
     cards = [parse_card(card) for card in find_cards(soup)]
 
-    seen = update_seen(load_seen(), [card["vacancy_id"] for card in cards])
-    save_seen(seen)
+    seen = update_seen([card["vacancy_id"] for card in cards])
 
     vacancies = []
 

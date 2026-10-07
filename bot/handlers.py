@@ -1,7 +1,5 @@
-import os
+import threading
 import time
-
-import pandas as pd
 
 from bot.api import (
     answer_callback_query,
@@ -12,11 +10,9 @@ from bot.api import (
 from bot.history import (
     all_vacancy_urls,
     get_new_vacancies_for_subscriber,
-    load_sent_vacancies,
+    get_seen_urls,
     mark_as_sent,
-    prune_sent_vacancies,
     reset_subscriber_history,
-    save_sent_vacancies,
 )
 from bot.keyboards import (
     INDUSTRIES_BUTTON_TEXT,
@@ -31,18 +27,22 @@ from bot.keyboards import (
     roles_text,
 )
 from bot.subscribers import (
+    add_subscriber,
     get_industries,
     get_roles,
     load_subscribers,
-    save_subscribers,
+    remove_subscriber,
     set_industries,
     set_roles,
 )
 from pipeline.stats import build_top_skills_message
 from pipeline.summary import build_summary_messages, filter_vacancies
+from storage.db import connect
+from storage.vacancies import load_target_vacancies
 
-OFFSET_FILE = "data/telegram_offset.txt"
-LATEST_VACANCIES_FILE = "data/vacancies_latest.pkl"
+# рассылка (поток run) и кнопка «Готово» (поток poll_updates) не должны доставлять
+# одновременно: оба прочитают историю до того, как другой её допишет, и пришлют одно и то же
+_delivery_lock = threading.Lock()
 
 
 _FILTERS = {
@@ -64,49 +64,50 @@ _FILTERS = {
 
 
 def _load_offset():
-    if not os.path.exists(OFFSET_FILE):
-        return 0
-    with open(OFFSET_FILE, encoding="utf-8") as file:
-        return int(file.read().strip() or 0)
+    with connect() as conn:
+        row = conn.execute("SELECT value FROM bot_state WHERE key = 'telegram_offset'").fetchone()
+    return int(row["value"]) if row else 0
 
 
 def _save_offset(offset):
-    os.makedirs(os.path.dirname(OFFSET_FILE), exist_ok=True)
-    with open(OFFSET_FILE, "w", encoding="utf-8") as file:
-        file.write(str(offset))
+    with connect() as conn:
+        conn.execute(
+            "INSERT INTO bot_state (key, value) VALUES ('telegram_offset', ?) "
+            "ON CONFLICT (key) DO UPDATE SET value = excluded.value",
+            (str(offset),),
+        )
 
 
-# общий (не персональный!) снэпшот вакансий последнего run() из main.py
+# общий снэпшот вакансий последнего run() из main.py
 def _load_latest_vacancies():
-    if not os.path.exists(LATEST_VACANCIES_FILE):
-        return pd.DataFrame()
-    return pd.read_pickle(LATEST_VACANCIES_FILE)
+    return load_target_vacancies(latest=True)
 
 
 # === доставка вакансий одному подписчику ===
 
 
-def _deliver_vacancies(chat_id, industries, roles, target_df, sent):
-    candidates = get_new_vacancies_for_subscriber(target_df, sent, chat_id)
-    candidates = filter_vacancies(candidates, industries=industries, roles=roles)
+def _deliver_vacancies(chat_id, industries, roles, target_df):
+    with _delivery_lock:
+        seen_urls = get_seen_urls(chat_id)
+        candidates = get_new_vacancies_for_subscriber(target_df, seen_urls)
+        candidates = filter_vacancies(candidates, industries=industries, roles=roles)
 
-    if candidates.empty:
-        return sent, False
+        if candidates.empty:
+            return False
 
-    is_new_subscriber = str(chat_id) not in sent
-    messages = build_summary_messages(
-        candidates,
-        is_new_subscriber=is_new_subscriber,
-        industries=industries,
-        roles=roles,
-    )
+        messages = build_summary_messages(
+            candidates,
+            is_new_subscriber=not seen_urls,
+            industries=industries,
+            roles=roles,
+        )
 
-    for message in messages:
-        send_message(chat_id, message)
-        time.sleep(1)  # rate limit telegram
+        for message in messages:
+            send_message(chat_id, message)
+            time.sleep(1)  # rate limit telegram
 
-    sent = mark_as_sent(sent, chat_id, all_vacancy_urls(candidates))
-    return sent, True
+        mark_as_sent(chat_id, all_vacancy_urls(candidates))
+        return True
 
 
 def send_summary(target_df):
@@ -115,18 +116,10 @@ def send_summary(target_df):
         print("нет подписчиков — рассылать некому")
         return
 
-    sent = prune_sent_vacancies(load_sent_vacancies())
-
     for chat_id, data in subscribers.items():
         try:
-            sent, _has_new = _deliver_vacancies(
-                chat_id,
-                data.get("industries") or [],
-                data.get("roles") or [],
-                target_df,
-                sent,
-            )
-            save_sent_vacancies(sent)
+            industries, roles = data.get("industries") or [], data.get("roles") or []
+            _deliver_vacancies(chat_id, industries, roles, target_df)
         except Exception as error:
             print(f"не удалось отправить {chat_id}: {error}")
 
@@ -136,7 +129,7 @@ def send_summary(target_df):
 
 def _cmd_start(chat_id, subscribers):
     if chat_id not in subscribers:
-        subscribers[chat_id] = {"industries": [], "roles": []}
+        add_subscriber(subscribers, chat_id)
         send_message(
             chat_id,
             "Вы подписались на сводку вакансий!\n"
@@ -156,7 +149,7 @@ def _cmd_start(chat_id, subscribers):
 
 
 def _cmd_stop(chat_id, subscribers):
-    subscribers.pop(chat_id, None)
+    remove_subscriber(subscribers, chat_id)
     send_message(chat_id, "Вы отписались от сводки.", reply_markup={"remove_keyboard": True})
 
 
@@ -251,12 +244,6 @@ def _handle_message(message, subscribers):
 # === callback-кнопки выбора сфер/ролей ===
 
 
-def _reset_history(chat_id):
-    sent = load_sent_vacancies()
-    sent = reset_subscriber_history(sent, chat_id)
-    save_sent_vacancies(sent)
-
-
 def _refresh_keyboard(chat_id, message_id, subscribers, filter_key):
     spec = _FILTERS[filter_key]
     try:
@@ -277,14 +264,14 @@ def _cb_toggle(chat_id, message_id, subscribers, filter_key, value_key):
 
     # выбор поменялся — сбрасываем историю, чтобы под новый фильтр
     # можно было заново увидеть весь пул вакансий
-    _reset_history(chat_id)
+    reset_subscriber_history(chat_id)
     _refresh_keyboard(chat_id, message_id, subscribers, filter_key)
 
 
 def _cb_reset(chat_id, message_id, subscribers, filter_key):
     spec = _FILTERS[filter_key]
     spec["set"](subscribers, chat_id, [])
-    _reset_history(chat_id)
+    reset_subscriber_history(chat_id)
     _refresh_keyboard(chat_id, message_id, subscribers, filter_key)
 
 
@@ -302,11 +289,7 @@ def _cb_confirm(chat_id, callback_id, subscribers):
     industries = get_industries(subscribers, chat_id)
     roles = get_roles(subscribers, chat_id)
 
-    sent = prune_sent_vacancies(load_sent_vacancies())
-    sent, has_new = _deliver_vacancies(chat_id, industries, roles, target_df, sent)
-    save_sent_vacancies(sent)
-
-    if not has_new:
+    if not _deliver_vacancies(chat_id, industries, roles, target_df):
         send_message(chat_id, "По выбранным фильтрам сейчас нет вакансий за неделю.")
 
 
@@ -341,12 +324,9 @@ def _handle_callback_query(callback, subscribers):
 
 
 def poll_updates():
-    offset = _load_offset()
     subscribers = load_subscribers()
 
-    for update in get_updates(offset):
-        offset = update["update_id"] + 1
-
+    for update in get_updates(_load_offset()):
         try:
             if "callback_query" in update:
                 _handle_callback_query(update["callback_query"], subscribers)
@@ -355,5 +335,4 @@ def poll_updates():
         except Exception as error:
             print(f"ошибка обработки апдейта {update.get('update_id')}: {error}")
 
-    save_subscribers(subscribers)
-    _save_offset(offset)
+        _save_offset(update["update_id"] + 1)

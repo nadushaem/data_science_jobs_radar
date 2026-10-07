@@ -1,7 +1,9 @@
+import pandas as pd
 import pytest
 import requests
 
 from pipeline import stats
+from storage.vacancies import archive_targets
 
 CBR_PAYLOAD = {
     "Valute": {
@@ -49,3 +51,25 @@ def test_exchange_rates_fallback(monkeypatch):
 
     monkeypatch.setattr(stats.requests, "get", _fail)
     assert stats.get_exchange_rates() == {"RUB": 1.0, **stats.FALLBACK_RATES}
+
+
+def test_add_rub_salaries():
+    df = pd.DataFrame([{"salary_min": 1000, "salary_max": None, "currency": "USD"}])
+    result = stats.add_rub_salaries(df, {"RUB": 1.0, "USD": 90.0})
+
+    assert result["salary_min_rub"].iloc[0] == 90_000
+    assert pd.isna(result["salary_max_rub"].iloc[0])
+
+
+def test_top_skills_reads_archive():
+    archive_targets(
+        pd.DataFrame([
+            {"url": "a", "skills": ["python", "sql"], "matched_roles": ["data_scientist"],
+             "fintech": ["банк"]},
+            {"url": "b", "skills": ["python"], "matched_roles": ["ml_engineer"], "it": ["it"]},
+        ])
+    )  # fmt: skip
+
+    assert stats.top_skills() == [("python", 2), ("sql", 1)]
+    assert stats.top_skills(industries=["fintech"]) == [("python", 1), ("sql", 1)]
+    assert stats.top_skills(roles=["ml_engineer"]) == [("python", 1)]

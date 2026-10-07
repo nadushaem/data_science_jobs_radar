@@ -1,54 +1,48 @@
-from datetime import datetime, timedelta
-
 import pandas as pd
 
 from bot import history
+from bot.subscribers import add_subscriber
+from storage.db import connect
 
 
-def _iso(days_ago):
-    return (datetime.now() - timedelta(days=days_ago)).isoformat()
+def _deliveries_count(chat_id):
+    with connect() as conn:
+        query = "SELECT count(*) FROM deliveries WHERE chat_id = ?"
+        return conn.execute(query, (chat_id,)).fetchone()[0]
 
 
-def test_prune_drops_old_urls_and_empty_subscribers():
-    sent = {"1": {"old": _iso(40), "new": _iso(1)}, "2": {"old": _iso(40)}}
-    assert history.prune_sent_vacancies(sent) == {"1": {"new": sent["1"]["new"]}}
+def test_seen_urls_are_personal():
+    add_subscriber({}, 42)
+    add_subscriber({}, 7)
+    history.mark_as_sent(42, ["a", None, "a"])  # пустые url и повторы не пишем
+
+    assert history.get_seen_urls(42) == {"a"}
+    assert history.get_seen_urls(7) == set()  # у другого подписчика своя история
+    assert _deliveries_count(42) == 1
 
 
-def test_new_vacancies_are_personal():
+def test_new_vacancies_skip_seen():
     df = pd.DataFrame({"url": ["a", "b", "c"]})
-    sent = history.mark_as_sent({}, 42, ["a", None])  # пустые url не пишем
 
-    assert list(history.get_new_vacancies_for_subscriber(df, sent, 42)["url"]) == ["b", "c"]
-    # у другого подписчика своя история
-    assert len(history.get_new_vacancies_for_subscriber(df, sent, 7)) == 3
+    assert list(history.get_new_vacancies_for_subscriber(df, {"a"})["url"]) == ["b", "c"]
+    assert len(history.get_new_vacancies_for_subscriber(df, set())) == 3
 
 
-def test_reset_history():
-    sent = history.mark_as_sent({}, 42, ["a"])
-    assert history.reset_subscriber_history(sent, 42) == {}
+def test_reset_hides_history_but_keeps_rows():
+    add_subscriber({}, 42)
+    history.mark_as_sent(42, ["a"])
+    history.reset_subscriber_history(42)
 
+    assert history.get_seen_urls(42) == set()  # после смены фильтров «а» снова новая
+    history.mark_as_sent(42, ["a"])
 
-def test_save_and_load_roundtrip(tmp_path, monkeypatch):
-    monkeypatch.setattr(history, "SENT_FILE", str(tmp_path / "data" / "sent.json"))
-    sent = history.mark_as_sent({}, 42, ["a"])
-
-    history.save_sent_vacancies(sent)
-    assert history.load_sent_vacancies() == sent
-
-
-def test_subscribers_migrate_renamed_roles(tmp_path, monkeypatch):
-    from bot import subscribers
-
-    path = tmp_path / "subs.json"
-    path.write_text('{"42": {"industries": [], "roles": ["ai_ml_engineer"]}}', encoding="utf-8")
-    monkeypatch.setattr(subscribers, "SUBSCRIBERS_FILE", str(path))
-
-    assert subscribers.load_subscribers()[42]["roles"] == ["ai_engineer"]
+    assert history.get_seen_urls(42) == {"a"}
+    assert _deliveries_count(42) == 2  # обе отправки остались в журнале
 
 
 def test_duplicate_urls_count_as_sent():
     df = pd.DataFrame({"url": ["a"], "duplicate_urls": [["b"]]})
-    sent = history.mark_as_sent({}, 42, ["b"])  # раньше ушла версия с другого борда
 
-    assert history.get_new_vacancies_for_subscriber(df, sent, 42).empty
+    # раньше ушла версия с другого борда
+    assert history.get_new_vacancies_for_subscriber(df, {"b"}).empty
     assert history.all_vacancy_urls(df) == ["a", "b"]

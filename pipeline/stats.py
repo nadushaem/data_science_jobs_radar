@@ -1,41 +1,21 @@
-import os
 from collections import Counter
 
 import pandas as pd
 import requests
 
-from pipeline.keywords import TARGET_KEYWORDS
+from storage.vacancies import load_target_vacancies
 
-STATS_FILE = "data/vacancies_stats.pkl"
-
-# сколько рабочих часов в месяце берём для конвертации почасовой ставки
+# сколько рабочих часов в месяце берем для конвертации почасовой ставки
 HOURS_PER_MONTH = 168
-
-STATS_COLUMNS = [
-    "title",
-    "company",
-    "location",
-    "work_format",
-    "source",
-    "published_at",
-    "specialization",
-    "level",
-    "skills",
-    "salary_min",
-    "salary_max",
-    *TARGET_KEYWORDS.keys(),
-    "matched_roles",
-    "url",  # служебное поле — нужно для дедупликации архива между прогонами
-]
 
 CBR_URL = "https://www.cbr-xml-daily.ru/daily_json.js"
 
 # запасные курсы на случай, если цб недоступен
 # нужно периодически поправлять руками
 FALLBACK_RATES = {
-    "USD": 95.0,
-    "EUR": 105.0,
-    "GBP": 120.0,
+    "USD": 85.0,
+    "EUR": 95.0,
+    "GBP": 115.0,
 }
 
 
@@ -89,64 +69,16 @@ def _normalize_salary_period(row):
     return to_month(salary_min), to_month(salary_max)
 
 
-# строим финальный датасет для статистики из классифицированных вакансий
-def build_stats_dataset(df, exchange_rates=None):
-    if exchange_rates is None:
-        exchange_rates = {"RUB": 1.0}
+# зарплата в рублях за месяц — её храним в target_vacancies для статистики
+def add_rub_salaries(df, exchange_rates):
+    def convert(row):
+        currency = row.get("currency")
+        return [to_rub(value, currency, exchange_rates) for value in _normalize_salary_period(row)]
 
-    df = df[df["is_target"]].copy()
-
-    # зарплата → месяц, затем → рубли
-    normalized = df.apply(_normalize_salary_period, axis=1, result_type="expand")
-    df["salary_min"], df["salary_max"] = normalized[0], normalized[1]
-
-    df["salary_min"] = df.apply(
-        lambda row: to_rub(row["salary_min"], row.get("currency"), exchange_rates), axis=1
+    salaries = [convert(row) for row in df.to_dict("records")]
+    return df.assign(
+        salary_min_rub=[low for low, _ in salaries], salary_max_rub=[high for _, high in salaries]
     )
-    df["salary_max"] = df.apply(
-        lambda row: to_rub(row["salary_max"], row.get("currency"), exchange_rates), axis=1
-    )
-
-    # категории сфер — списки найденных ключевых слов превращаем в bool
-    for category in TARGET_KEYWORDS:
-        if category in df.columns:
-            df[category] = df[category].map(bool)
-        else:
-            df[category] = False
-
-    return df.reindex(columns=STATS_COLUMNS)
-
-
-# читаем существующий архив статистики, если он есть
-def load_stats():
-    if not os.path.exists(STATS_FILE):
-        empty = pd.DataFrame(columns=STATS_COLUMNS)
-        for category in TARGET_KEYWORDS:
-            empty[category] = empty[category].astype(bool)
-        return empty
-
-    return pd.read_pickle(STATS_FILE)
-
-
-# дописываем новые вакансии в архив статистики, убирая дубли по url
-def append_stats(new_stats_df):
-    archive = load_stats()
-
-    combined = pd.concat([archive, new_stats_df], ignore_index=True)
-    combined = combined.drop_duplicates(subset=["url"], keep="last")
-    bool_columns = list(TARGET_KEYWORDS)
-    combined[bool_columns] = combined[bool_columns].fillna(False).astype(bool)
-
-    combined["published_at"] = pd.to_datetime(combined["published_at"], errors="coerce")
-    combined["salary_min"] = pd.to_numeric(combined["salary_min"], errors="coerce")
-    combined["salary_max"] = pd.to_numeric(combined["salary_max"], errors="coerce")
-
-    combined = combined.sort_values("published_at").reset_index(drop=True)
-
-    os.makedirs(os.path.dirname(STATS_FILE), exist_ok=True)
-    combined.to_pickle(STATS_FILE)
-
-    return combined
 
 
 # вакансия попадает в подсчёт, если хотя бы одна из выбранных сфер = True.
@@ -168,7 +100,7 @@ def _role_mask(df, roles):
 
 # считаем топ-N навыков по архиву статистики с учётом фильтров подписчика
 def top_skills(industries=None, roles=None, top_n=5):
-    df = load_stats()
+    df = load_target_vacancies()  # весь архив целевых вакансий
     if df.empty:
         return []
 
