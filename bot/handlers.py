@@ -1,4 +1,5 @@
 import os
+import threading
 import time
 
 import pandas as pd
@@ -12,11 +13,9 @@ from bot.api import (
 from bot.history import (
     all_vacancy_urls,
     get_new_vacancies_for_subscriber,
-    load_sent_vacancies,
+    get_seen_urls,
     mark_as_sent,
-    prune_sent_vacancies,
     reset_subscriber_history,
-    save_sent_vacancies,
 )
 from bot.keyboards import (
     INDUSTRIES_BUTTON_TEXT,
@@ -44,6 +43,7 @@ from pipeline.summary import build_summary_messages, filter_vacancies
 from storage.db import connect
 
 LATEST_VACANCIES_FILE = "data/vacancies_latest.pkl"
+_delivery_lock = threading.Lock()
 
 
 _FILTERS = {
@@ -89,27 +89,28 @@ def _load_latest_vacancies():
 # === доставка вакансий одному подписчику ===
 
 
-def _deliver_vacancies(chat_id, industries, roles, target_df, sent):
-    candidates = get_new_vacancies_for_subscriber(target_df, sent, chat_id)
-    candidates = filter_vacancies(candidates, industries=industries, roles=roles)
+def _deliver_vacancies(chat_id, industries, roles, target_df):
+    with _delivery_lock:
+        seen_urls = get_seen_urls(chat_id)
+        candidates = get_new_vacancies_for_subscriber(target_df, seen_urls)
+        candidates = filter_vacancies(candidates, industries=industries, roles=roles)
 
-    if candidates.empty:
-        return sent, False
+        if candidates.empty:
+            return False
 
-    is_new_subscriber = str(chat_id) not in sent
-    messages = build_summary_messages(
-        candidates,
-        is_new_subscriber=is_new_subscriber,
-        industries=industries,
-        roles=roles,
-    )
+        messages = build_summary_messages(
+            candidates,
+            is_new_subscriber=not seen_urls,
+            industries=industries,
+            roles=roles,
+        )
 
-    for message in messages:
-        send_message(chat_id, message)
-        time.sleep(1)  # rate limit telegram
+        for message in messages:
+            send_message(chat_id, message)
+            time.sleep(1)  # rate limit telegram
 
-    sent = mark_as_sent(sent, chat_id, all_vacancy_urls(candidates))
-    return sent, True
+        mark_as_sent(chat_id, all_vacancy_urls(candidates))
+        return True
 
 
 def send_summary(target_df):
@@ -118,18 +119,10 @@ def send_summary(target_df):
         print("нет подписчиков — рассылать некому")
         return
 
-    sent = prune_sent_vacancies(load_sent_vacancies())
-
     for chat_id, data in subscribers.items():
         try:
-            sent, _has_new = _deliver_vacancies(
-                chat_id,
-                data.get("industries") or [],
-                data.get("roles") or [],
-                target_df,
-                sent,
-            )
-            save_sent_vacancies(sent)
+            industries, roles = data.get("industries") or [], data.get("roles") or []
+            _deliver_vacancies(chat_id, industries, roles, target_df)
         except Exception as error:
             print(f"не удалось отправить {chat_id}: {error}")
 
@@ -254,12 +247,6 @@ def _handle_message(message, subscribers):
 # === callback-кнопки выбора сфер/ролей ===
 
 
-def _reset_history(chat_id):
-    sent = load_sent_vacancies()
-    sent = reset_subscriber_history(sent, chat_id)
-    save_sent_vacancies(sent)
-
-
 def _refresh_keyboard(chat_id, message_id, subscribers, filter_key):
     spec = _FILTERS[filter_key]
     try:
@@ -280,14 +267,14 @@ def _cb_toggle(chat_id, message_id, subscribers, filter_key, value_key):
 
     # выбор поменялся — сбрасываем историю, чтобы под новый фильтр
     # можно было заново увидеть весь пул вакансий
-    _reset_history(chat_id)
+    reset_subscriber_history(chat_id)
     _refresh_keyboard(chat_id, message_id, subscribers, filter_key)
 
 
 def _cb_reset(chat_id, message_id, subscribers, filter_key):
     spec = _FILTERS[filter_key]
     spec["set"](subscribers, chat_id, [])
-    _reset_history(chat_id)
+    reset_subscriber_history(chat_id)
     _refresh_keyboard(chat_id, message_id, subscribers, filter_key)
 
 
@@ -305,11 +292,7 @@ def _cb_confirm(chat_id, callback_id, subscribers):
     industries = get_industries(subscribers, chat_id)
     roles = get_roles(subscribers, chat_id)
 
-    sent = prune_sent_vacancies(load_sent_vacancies())
-    sent, has_new = _deliver_vacancies(chat_id, industries, roles, target_df, sent)
-    save_sent_vacancies(sent)
-
-    if not has_new:
+    if not _deliver_vacancies(chat_id, industries, roles, target_df):
         send_message(chat_id, "По выбранным фильтрам сейчас нет вакансий за неделю.")
 
 
