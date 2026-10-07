@@ -10,6 +10,7 @@ from pipeline.keywords import EXCLUDED_ROLES, INDUSTRY_EXCLUDES, ROLE_TAXONOMY, 
 from pipeline.normalize import normalize_dataframe
 from pipeline.stats import append_stats, build_stats_dataset, get_exchange_rates
 from sources import datasecrets, geekjob, getmatch, hirify
+from storage.db import init_db
 
 load_dotenv()
 
@@ -61,6 +62,7 @@ def run():
 
 
 if __name__ == "__main__":
+    init_db()
     delete_webhook()
 
     run()

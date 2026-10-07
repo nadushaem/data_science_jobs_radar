@@ -2,6 +2,8 @@ from datetime import datetime
 
 import pytest
 
+from storage import db
+
 FROZEN_NOW = datetime(2026, 1, 5, 12, 0)
 
 
@@ -9,6 +11,14 @@ class _FrozenDatetime(datetime):
     @classmethod
     def now(cls, tz=None):
         return FROZEN_NOW
+
+
+# у каждого теста своя пустая база во временной папке.
+# autouse — чтобы ни один тест случайно не записал в настоящую data/radar.db
+@pytest.fixture(autouse=True)
+def isolated_db(tmp_path, monkeypatch):
+    monkeypatch.setenv("DB_PATH", str(tmp_path / "test.db"))
+    db.init_db()
 
 
 # подменяет datetime в переданном модуле, возвращает «текущее» время

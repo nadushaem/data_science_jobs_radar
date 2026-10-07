@@ -16,7 +16,7 @@ ignore = ["BLE001", "DTZ005"]
 
 [tool.ruff.lint.isort]
 # иначе ruff может принять bot/pipeline/sources за сторонние пакеты
-known-first-party = ["bot", "pipeline", "sources"]
+known-first-party = ["bot", "pipeline", "sources", "storage"]
 
 [tool.ruff.lint.per-file-ignores]
 # в тестах фиксированные даты без таймзоны — это нормально
