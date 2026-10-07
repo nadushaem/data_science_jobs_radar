@@ -1,7 +1,8 @@
 import pandas as pd
 import pytest
 
-from sources import geekjob, getmatch, hirify
+from sources import datasecrets, geekjob, getmatch, hirify
+from storage.db import connect
 
 
 def test_geekjob_date_rolls_over_year(freeze_now):
@@ -61,3 +62,14 @@ def test_getmatch_parse_offer_uses_salary_fallback():
     assert result["skills"] == ["python"]
     assert result["description"] == "Финтех"
     assert result["level"] == ["Сеньор"]
+
+
+def test_datasecrets_keeps_first_seen():
+    with connect() as conn:
+        conn.execute("INSERT INTO datasecrets_seen VALUES ('old', '2026-01-01T10:00:00')")
+
+    seen = datasecrets.update_seen(["old", "new"])
+
+    assert seen["old"] == "2026-01-01T10:00:00"  # известная вакансия сохраняет дату
+    assert seen["new"] > seen["old"]  # новая получила текущее время
+    assert datasecrets.update_seen([]) == seen  # пропавшие с доски не удаляются
