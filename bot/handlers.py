@@ -1,8 +1,5 @@
-import os
 import threading
 import time
-
-import pandas as pd
 
 from bot.api import (
     answer_callback_query,
@@ -41,8 +38,10 @@ from bot.subscribers import (
 from pipeline.stats import build_top_skills_message
 from pipeline.summary import build_summary_messages, filter_vacancies
 from storage.db import connect
+from storage.vacancies import load_target_vacancies
 
-LATEST_VACANCIES_FILE = "data/vacancies_latest.pkl"
+# рассылка (поток run) и кнопка «Готово» (поток poll_updates) не должны доставлять
+# одновременно: оба прочитают историю до того, как другой её допишет, и пришлют одно и то же
 _delivery_lock = threading.Lock()
 
 
@@ -81,9 +80,7 @@ def _save_offset(offset):
 
 # общий снэпшот вакансий последнего run() из main.py
 def _load_latest_vacancies():
-    if not os.path.exists(LATEST_VACANCIES_FILE):
-        return pd.DataFrame()
-    return pd.read_pickle(LATEST_VACANCIES_FILE)
+    return load_target_vacancies(latest=True)
 
 
 # === доставка вакансий одному подписчику ===

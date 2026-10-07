@@ -7,8 +7,10 @@ from pipeline.classify import classify_vacancies
 from pipeline.dedupe import deduplicate_vacancies
 from pipeline.keywords import EXCLUDED_ROLES, INDUSTRY_EXCLUDES, ROLE_TAXONOMY, TARGET_KEYWORDS
 from pipeline.normalize import normalize_dataframe
-from pipeline.stats import append_stats, build_stats_dataset, get_exchange_rates
+from pipeline.stats import add_rub_salaries, get_exchange_rates
 from sources import datasecrets, geekjob, getmatch, hirify
+from storage.db import init_db
+from storage.vacancies import archive_targets
 
 load_dotenv()
 
@@ -16,8 +18,8 @@ load_dotenv()
 SOURCES = [datasecrets, geekjob, getmatch, hirify]
 
 
-# разовый прогон: собираем вакансии за месяц и кладем в архив статистики.
-# дальше main.py будет дописывать туда свежие вакансии
+# разовый прогон: собираем вакансии за месяц и кладем в архив статистики (target_vacancies).
+# снэпшот бота и сырой слой не трогаем — дальше main.py будет дописывать свежие вакансии
 def run(days=30):
     vacancies = []
 
@@ -41,15 +43,11 @@ def run(days=30):
     )
     df = pd.DataFrame(records)
 
-    for category in TARGET_KEYWORDS:
-        df[category] = df[category].astype(bool)
-
-    rates = get_exchange_rates()
-    stats_df = build_stats_dataset(df, rates)
-
-    archive = append_stats(stats_df)
-    print(f"в архиве статистики теперь {len(archive)} вакансий")
+    target_df = add_rub_salaries(df[df["is_target"]], get_exchange_rates())
+    archive_targets(target_df)
+    print(f"в архив статистики записано {len(target_df)} вакансий")
 
 
 if __name__ == "__main__":
+    init_db()
     run()
