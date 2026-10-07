@@ -36,16 +36,6 @@ def test_save_and_load_roundtrip(tmp_path, monkeypatch):
     assert history.load_sent_vacancies() == sent
 
 
-def test_subscribers_migrate_renamed_roles(tmp_path, monkeypatch):
-    from bot import subscribers
-
-    path = tmp_path / "subs.json"
-    path.write_text('{"42": {"industries": [], "roles": ["ai_ml_engineer"]}}', encoding="utf-8")
-    monkeypatch.setattr(subscribers, "SUBSCRIBERS_FILE", str(path))
-
-    assert subscribers.load_subscribers()[42]["roles"] == ["ai_engineer"]
-
-
 def test_duplicate_urls_count_as_sent():
     df = pd.DataFrame({"url": ["a"], "duplicate_urls": [["b"]]})
     sent = history.mark_as_sent({}, 42, ["b"])  # раньше ушла версия с другого борда

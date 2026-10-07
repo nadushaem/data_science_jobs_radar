@@ -31,17 +31,18 @@ from bot.keyboards import (
     roles_text,
 )
 from bot.subscribers import (
+    add_subscriber,
     get_industries,
     get_roles,
     load_subscribers,
-    save_subscribers,
+    remove_subscriber,
     set_industries,
     set_roles,
 )
 from pipeline.stats import build_top_skills_message
 from pipeline.summary import build_summary_messages, filter_vacancies
+from storage.db import connect
 
-OFFSET_FILE = "data/telegram_offset.txt"
 LATEST_VACANCIES_FILE = "data/vacancies_latest.pkl"
 
 
@@ -64,19 +65,21 @@ _FILTERS = {
 
 
 def _load_offset():
-    if not os.path.exists(OFFSET_FILE):
-        return 0
-    with open(OFFSET_FILE, encoding="utf-8") as file:
-        return int(file.read().strip() or 0)
+    with connect() as conn:
+        row = conn.execute("SELECT value FROM bot_state WHERE key = 'telegram_offset'").fetchone()
+    return int(row["value"]) if row else 0
 
 
 def _save_offset(offset):
-    os.makedirs(os.path.dirname(OFFSET_FILE), exist_ok=True)
-    with open(OFFSET_FILE, "w", encoding="utf-8") as file:
-        file.write(str(offset))
+    with connect() as conn:
+        conn.execute(
+            "INSERT INTO bot_state (key, value) VALUES ('telegram_offset', ?) "
+            "ON CONFLICT (key) DO UPDATE SET value = excluded.value",
+            (str(offset),),
+        )
 
 
-# общий (не персональный!) снэпшот вакансий последнего run() из main.py
+# общий снэпшот вакансий последнего run() из main.py
 def _load_latest_vacancies():
     if not os.path.exists(LATEST_VACANCIES_FILE):
         return pd.DataFrame()
@@ -136,7 +139,7 @@ def send_summary(target_df):
 
 def _cmd_start(chat_id, subscribers):
     if chat_id not in subscribers:
-        subscribers[chat_id] = {"industries": [], "roles": []}
+        add_subscriber(subscribers, chat_id)
         send_message(
             chat_id,
             "Вы подписались на сводку вакансий!\n"
@@ -156,7 +159,7 @@ def _cmd_start(chat_id, subscribers):
 
 
 def _cmd_stop(chat_id, subscribers):
-    subscribers.pop(chat_id, None)
+    remove_subscriber(subscribers, chat_id)
     send_message(chat_id, "Вы отписались от сводки.", reply_markup={"remove_keyboard": True})
 
 
@@ -341,12 +344,9 @@ def _handle_callback_query(callback, subscribers):
 
 
 def poll_updates():
-    offset = _load_offset()
     subscribers = load_subscribers()
 
-    for update in get_updates(offset):
-        offset = update["update_id"] + 1
-
+    for update in get_updates(_load_offset()):
         try:
             if "callback_query" in update:
                 _handle_callback_query(update["callback_query"], subscribers)
@@ -355,5 +355,4 @@ def poll_updates():
         except Exception as error:
             print(f"ошибка обработки апдейта {update.get('update_id')}: {error}")
 
-    save_subscribers(subscribers)
-    _save_offset(offset)
+        _save_offset(update["update_id"] + 1)
