@@ -34,3 +34,15 @@ def test_cross_source_duplicates_by_full_title(make_vacancy):
 
     assert sorted(result.index) == ["a", "c", "d"]
     assert result.loc["a", "duplicate_urls"] == ["b"]
+
+
+# баг: группировали по сырой строке компании, и похожие тайтлы из «альфа банк»
+# и «альфа-банк» не сравнивались между собой
+def test_company_spelling_does_not_split_duplicates(make_vacancy):
+    rows = [
+        make_vacancy(url="a", company="альфа банк", title="data scientist", description="подробно"),
+        make_vacancy(url="b", company="альфа-банк", title="data scientist (ai)"),
+    ]
+    result = deduplicate_vacancies(pd.DataFrame(rows))
+
+    assert list(result["url"]) == ["a"] and result.loc[0, "duplicate_urls"] == ["b"]

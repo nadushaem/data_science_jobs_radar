@@ -108,12 +108,9 @@ def deduplicate_vacancies(df, title_similarity_threshold=0.85):
     used = set()
     merged = {}  # индекс оставленной вакансии → url её дублей
 
-    # безымянные company не группируем вместе — у каждой своя "группа из одного"
-    has_company = df["company"].notna() if "company" in df.columns else pd.Series([False] * len(df))
-    group_key = df["company"].where(
-        has_company, df.index.to_series().map(lambda i: f"__no_company_{i}")
-    )
-
+    companies = df["company"] if "company" in df.columns else pd.Series(pd.NA, index=df.index)
+    company_keys = companies.map(_company_key)
+    group_key = company_keys.where(company_keys != "", "__no_company_" + df.index.astype(str))
     for _, group in df.groupby(group_key):
         indices = group.index.tolist()
 
