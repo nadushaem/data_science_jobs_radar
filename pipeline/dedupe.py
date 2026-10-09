@@ -1,6 +1,8 @@
 import ast
 import re
+from collections import Counter
 from difflib import SequenceMatcher
+from functools import partial
 
 import pandas as pd
 
@@ -68,69 +70,113 @@ def _company_key(value):
 
 
 # одна компания с разных бордов: «сбер» / «пао сбербанк». если компании нет хотя бы
-# у одной версии — не склеиваем: при общих названиях это скорее разные вакансии
+# у одной версии — не склеиваем: при общих названиях это скорее разные вакансии.
+# принимает уже посчитанные _company_key
 def _same_company(a, b):
-    a, b = _company_key(a), _company_key(b)
     return bool(a and b) and (a.startswith(b) or b.startswith(a))
 
 
-# дубли из разных источников: полностью совпадающий title + совместимая компания.
-# df отсортирован по полноте, поэтому первая встреченная версия — лучшая
-def _drop_cross_source_duplicates(df, merged):
-    keep, kept_by_title = [], {}
-
-    for i in df.index:
-        title, company = df.at[i, "title"], df.at[i, "company"]
-        candidates = kept_by_title.get(title, [])
-        same = [j for j in candidates if _same_company(df.at[j, "company"], company)]
-
-        if isinstance(title, str) and same:
-            merged.setdefault(same[0], []).extend([df.at[i, "url"], *merged.pop(i, [])])
-        else:
-            keep.append(i)
-            kept_by_title.setdefault(title, []).append(i)
-
-    return df.loc[keep]
+# «голова» тайтла без уточнений: «senior ds в команду скоринга (юл)» → «senior ds»
+def _title_head(title):
+    if not isinstance(title, str):
+        return ""
+    return re.split(r"\s*[(,]|\s+(?:в|для|на)\s+|\s+[-–—/|]\s+", title, maxsplit=1)[0].strip()
 
 
-# убираем дубли: точные по url, похожие по (company, title), затем одинаковые title
-# с разных бордов. url выкинутых дублей сохраняем в duplicate_urls — их учитывает история рассылок
-def deduplicate_vacancies(df, title_similarity_threshold=0.85):
+# описание → множество триграмм слов. по ним сравниваем тексты с разных бордов
+def _shingles(text, size=3):
+    if not isinstance(text, str):
+        return frozenset()
+    words = re.findall(r"\w+", text.lower())
+    return frozenset(zip(*(words[i:] for i in range(size)), strict=False))
+
+
+# какая доля короткого текста есть в длинном (0..1). делим на меньший, а не на объединение:
+# hirify отдаёт обрезанное описание, и оно целиком «входит» в полное с другого борда.
+# на слишком коротких текстах оценка шумная — возвращаем None, «текста нет»
+def _text_overlap(a, b, min_shingles=20):
+    if min(len(a), len(b)) < min_shingles:
+        return None
+    return len(a & b) / min(len(a), len(b))
+
+
+# признаки для сравнения пар — по словарю на строку df, считаем один раз на вакансию.
+# шаблонный текст («дмс с первого дня», «знание python и sql») есть во многих описаниях
+# и делает похожими разные вакансии. одна вакансия висит максимум на нескольких бордах,
+# поэтому триграммы чаще чем в max_shingle_df описаниях не учитываем — как max_df в tf-idf
+def _build_features(df, max_shingle_df):
+    features = [
+        {
+            "url": row.get("url"), "company": _company_key(row.get("company")),
+            "title": row.get("title"), "head": _title_head(row.get("title")),
+            "shingles": _shingles(row.get("description")),
+        }
+        for row in df.to_dict("records")
+    ]  # fmt: skip
+
+    counts = Counter(shingle for feature in features for shingle in feature["shingles"])
+    common = {shingle for shingle, count in counts.items() if count > max_shingle_df}
+    for feature in features:
+        feature["shingles"] -= common
+    return features
+
+
+# решаем, дубль ли пара вакансий одной компании:
+# - похожие тайтлы: дубль, если описания нечем сравнить или у них есть общий текст.
+#   иначе это разные вакансии с похожими названиями: «data scientist (nlp)» / «(cv)»
+# - тайтлы переписаны, но «голова» та же: дубль, только если описание в основном общее
+def _is_duplicate(a, b, title_threshold, text_threshold, min_text_overlap):
+    overlap = _text_overlap(a["shingles"], b["shingles"])
+
+    if _titles_match(a["title"], b["title"], title_threshold):
+        return overlap is None or overlap >= min_text_overlap
+
+    heads_match = _titles_match(a["head"], b["head"], title_threshold)
+    return heads_match and overlap is not None and overlap >= text_threshold
+
+
+# убираем дубли: точные по url, затем одна вакансия с разных бордов (см. _is_duplicate).
+# url выкинутых дублей сохраняем в duplicate_urls — их учитывает история рассылок
+def deduplicate_vacancies(
+    df, title_similarity_threshold=0.85, text_overlap_threshold=0.4, min_text_overlap=0.2,
+    max_shingle_df=5,
+):  # fmt: skip
     df = df.copy()
 
     if "url" in df.columns:
         df = df.drop_duplicates(subset=["url"]).reset_index(drop=True)
 
+    # сначала самые полные версии: из группы дублей остаётся первая встреченная
     df["_completeness"] = df.apply(_completeness_score, axis=1)
-    df = df.sort_values("_completeness", ascending=False).reset_index(drop=True)
+    df = df.sort_values("_completeness", ascending=False, kind="stable").reset_index(drop=True)
 
-    keep_indices = []
-    used = set()
+    features = _build_features(df, max_shingle_df)
+    is_duplicate = partial(
+        _is_duplicate, title_threshold=title_similarity_threshold,
+        text_threshold=text_overlap_threshold, min_text_overlap=min_text_overlap,
+    )  # fmt: skip
+    kept, kept_by_company = [], {}  # оставленные индексы и они же по ключу компании
     merged = {}  # индекс оставленной вакансии → url её дублей
 
-    companies = df["company"] if "company" in df.columns else pd.Series(pd.NA, index=df.index)
-    company_keys = companies.map(_company_key)
-    group_key = company_keys.where(company_keys != "", "__no_company_" + df.index.astype(str))
-    for _, group in df.groupby(group_key):
-        indices = group.index.tolist()
+    for i, current in enumerate(features):
+        company = current["company"]
+        candidates = [
+            j for key, indices in kept_by_company.items() if _same_company(key, company)
+            for j in indices
+        ]  # fmt: skip
+        # из подходящих берём самую полную версию — у неё наименьший индекс
+        matches = [j for j in candidates if is_duplicate(features[j], current)]
+        duplicate_of = min(matches, default=None)
 
-        for i in indices:
-            if i in used:
-                continue
+        if duplicate_of is None:
+            kept.append(i)
+            # без компании в кандидаты не попадаем — такие вакансии не склеиваем
+            if company:
+                kept_by_company.setdefault(company, []).append(i)
+        else:
+            merged.setdefault(duplicate_of, []).append(current["url"])
 
-            keep_indices.append(i)
-            used.add(i)
-            title_i = df.loc[i, "title"]
-
-            for j in indices:
-                if j in used:
-                    continue
-
-                if _titles_match(title_i, df.loc[j, "title"], title_similarity_threshold):
-                    used.add(j)
-                    merged.setdefault(i, []).append(df.loc[j, "url"])
-
-    df = _drop_cross_source_duplicates(df.loc[sorted(keep_indices)], merged)
+    df = df.loc[kept]
     df["duplicate_urls"] = [merged.get(i, []) for i in df.index]
 
     return df.drop(columns=["_completeness"]).reset_index(drop=True)
