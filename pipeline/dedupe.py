@@ -61,12 +61,17 @@ def _completeness_score(row):
     return score
 
 
+# заглушки вместо названия компании (уже в виде _company_key) — считаем, что компании нет
+HIDDEN_COMPANIES = {"companyhidden"}
+
+
 # компания без формы собственности, кавычек и разных дефисов: «ПАО «Сбер»» → «сбер»
 def _company_key(value):
     if not isinstance(value, str):
         return ""
     value = re.sub(r"\b(ооо|ао|пао|зао|llc|ltd|inc)\b", " ", value.lower())
-    return re.sub(r"[\W_]+", "", value)
+    key = re.sub(r"[\W_]+", "", value)
+    return "" if key in HIDDEN_COMPANIES else key
 
 
 # одна компания с разных бордов: «сбер» / «пао сбербанк». если компании нет хотя бы
@@ -76,11 +81,13 @@ def _same_company(a, b):
     return bool(a and b) and (a.startswith(b) or b.startswith(a))
 
 
-# «голова» тайтла без уточнений: «senior ds в команду скоринга (юл)» → «senior ds»
+# «голова» тайтла без уточнений, дефисы как пробелы:
+# «senior ds в команду скоринга (юл)» → «senior ds», «продакт-менеджер (b2c)» → «продакт менеджер»
 def _title_head(title):
     if not isinstance(title, str):
         return ""
-    return re.split(r"\s*[(,]|\s+(?:в|для|на)\s+|\s+[-–—/|]\s+", title, maxsplit=1)[0].strip()
+    head = re.split(r"\s*[(,]|\s+(?:в|для|на)\s+|\s+[-–—/|]\s+", title, maxsplit=1)[0]
+    return re.sub(r"[\s\-–—]+", " ", head).strip()
 
 
 # описание → множество триграмм слов. по ним сравниваем тексты с разных бордов
@@ -131,7 +138,8 @@ def _is_duplicate(a, b, title_threshold, text_threshold, min_text_overlap):
     if _titles_match(a["title"], b["title"], title_threshold):
         return overlap is None or overlap >= min_text_overlap
 
-    heads_match = _titles_match(a["head"], b["head"], title_threshold)
+    # головы сравниваем строго: «руководитель ai-отдела» и «руководитель 3d-отдела» похожи на 0.91
+    heads_match = bool(a["head"]) and a["head"] == b["head"]
     return heads_match and overlap is not None and overlap >= text_threshold
 
 

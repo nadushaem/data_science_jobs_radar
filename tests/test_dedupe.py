@@ -72,11 +72,11 @@ def test_company_spelling_does_not_split_duplicates(make_vacancy):
 
 def test_title_head_and_text_overlap():
     assert dedupe._title_head("senior ds в команду скоринга (юл)") == "senior ds"
-    assert dedupe._title_head("ml-разработчик в розничные риски") == "ml-разработчик"
     # обрезанный текст целиком входит в полный, на пустом сравнивать нечего
     full, cut = dedupe._shingles(RECSYS), dedupe._shingles(" ".join(RECSYS.split()[:25]))
     assert dedupe._text_overlap(cut, full) == 1.0
     assert dedupe._text_overlap(frozenset(), full) is None
+    assert dedupe._title_head("ml-разработчик в розничные риски") == "ml разработчик"
 
 
 # кейсы со скринов рассылки: одну вакансию по-разному назвали на разных бордах
@@ -119,5 +119,26 @@ def test_same_head_without_description_is_kept(make_vacancy):
     rows = [
         make_vacancy(url="a", company="2gis", title="data scientist"),
         make_vacancy(url="b", company="2gis", title="data scientist (рекомендательные системы)"),
+    ]
+    assert len(deduplicate_vacancies(pd.DataFrame(rows))) == 2
+
+
+# с живой базы: у разных вакансий одной компании общий текст о компании,
+# а «головы» отличаются одним словом — это не дубль
+def test_different_heads_with_shared_text_are_kept(make_vacancy):
+    rows = [
+        make_vacancy(url="a", company="greenfx", title="руководитель ai-отдела (ai production)",
+                    description=f"{SCORING} {NLP}"),
+        make_vacancy(url="b", company="greenfx", title="руководитель 3d-отдела",
+                    description=f"{SCORING} {CV}"),
+    ]  # fmt: skip
+    assert len(deduplicate_vacancies(pd.DataFrame(rows))) == 2
+
+
+# «company hidden» — заглушка, а не компания: такие вакансии между собой не склеиваем
+def test_hidden_company_is_treated_as_missing(make_vacancy):
+    rows = [
+        make_vacancy(url="a", company="company hidden", title="customer rep., sales"),
+        make_vacancy(url="b", company="companyhidden", title="sr customer rep., sales"),
     ]
     assert len(deduplicate_vacancies(pd.DataFrame(rows))) == 2
