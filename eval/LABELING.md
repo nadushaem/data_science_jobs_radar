@@ -33,7 +33,8 @@ data analyst / аналитик данных, data governance / quality.
 - fullstack analyst → 0
 - database engineer → 0
 - разметчик данных → 1, data quality
-- rl_engineer → 1, research scientist + ai_engineer / dl_engineer / ml-engineer (смотреть по описанию)
+- rl_engineer → 1, research_scientist + ai_engineer / dl_engineer / ml-engineer (смотреть по описанию)
+- quant researcher → 1, research_scientist + fintech
 - «архитектор ...» → внимательно смотреть описание вакансии, может быть как 1, так и 0
 - «python-разработчик», если по описанию основная работа — обучение моделей → 1
 
