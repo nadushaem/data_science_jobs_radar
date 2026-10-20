@@ -84,7 +84,8 @@ def load_gold(path):
 def predict(snapshot, taxonomy):
     df = normalize_dataframe(snapshot.replace(r"^\s*$", pd.NA, regex=True))
     keys = ("TARGET_KEYWORDS", "ROLE_TAXONOMY", "EXCLUDED_ROLES")
-    records = classify_vacancies(df.to_dict("records"), *(taxonomy[key] for key in keys))
+    excludes = taxonomy.get("INDUSTRY_EXCLUDES")
+    records = classify_vacancies(df.to_dict("records"), *(taxonomy[key] for key in keys), excludes)
     categories = list(taxonomy["TARGET_KEYWORDS"])
 
     pred = pd.DataFrame(records)

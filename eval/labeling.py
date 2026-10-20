@@ -94,8 +94,10 @@ def report_agreement(dev_gold, recheck):
     a, b = df["ds_role_dev"].astype(bool), df["ds_role_re"].astype(bool)
     both = df[a & b]
     same_roles = (both["roles_dev"].map(split_keys) == both["roles_re"].map(split_keys)).mean()
+    same_ind = both["industries_dev"].map(split_keys) == both["industries_re"].map(split_keys)
     print(f"переразметка {DEV}: n = {len(df)}, ds_role совпал {(a == b).mean():.0%}")
     print(f"kappa = {cohen_kappa(a, b):.2f}, roles совпали в {same_roles:.0%} из {len(both)}")
+    print(f"industries совпали в {same_ind.mean():.0%} из {len(both)}")
 
 
 def import_labels(gold):
