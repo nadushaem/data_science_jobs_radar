@@ -1,6 +1,7 @@
 # запуск из корня репозитория: python -m eval.evaluate_dedupe [--gold v1] [--rev <ревизия>]
-# снапшот делается один раз, из копии серверной базы:
+# снапшот v1 делается один раз, из копии серверной базы:
 #   $env:DB_PATH = "data/radar_server.db"; python -m eval.evaluate_dedupe --freeze
+# с v2 снапшот замораживает python -m eval.labeling export-pairs
 import argparse
 import re
 import subprocess
@@ -16,7 +17,9 @@ from pipeline.normalize import normalize_dataframe
 from storage.vacancies import load_raw_vacancies
 
 GOLD_COLUMNS = ["source_a", "title_a", "url_a", "source_b", "title_b", "url_b", "is_dup"]
-ERROR_COLUMNS = ["error", "company", "source_a", "title_a", "source_b", "title_b", "url_a", "url_b"]
+ERROR_COLUMNS = [
+    "error", "sample", "company", "source_a", "title_a", "source_b", "title_b", "url_a", "url_b",
+]  # fmt: skip
 
 
 # dedupe.py из рабочей копии или из любой ревизии git: main, ветка, тег.
@@ -101,7 +104,10 @@ def main():
     gold["naive"] = gold["title_a"] == gold["title_b"]
 
     print(f"пар: {len(gold)}, unsure: {gold['unsure'].sum()} — в метрики не идут")
+    # candidate — пары-кандидаты, control — случайные пары вне них. в v1 только кандидаты
+    gold["sample"] = gold.get("sample", "candidate")
     df = gold[~gold["unsure"]]
+    control, df = df[df["sample"] == "control"], df[df["sample"] == "candidate"]
     print(f"дублей: {df['is_dup'].sum()}, разные борды: {df['cross'].sum()}")
 
     print(f"\n=== dedupe {args.gold}, правило: {args.rev or 'рабочая копия'} ===")
@@ -109,9 +115,12 @@ def main():
     report("разные борды", df.loc[df["cross"], "is_dup"], df.loc[df["cross"], "pred"])
     report("один борд", df.loc[~df["cross"], "is_dup"], df.loc[~df["cross"], "pred"])
     report("naive baseline", df["is_dup"], df["naive"])
+    if len(control):  # дубли, которых не видит фильтр кандидатов, а значит и recall выше
+        dups, missed = control["is_dup"].sum(), (control["is_dup"] & ~control["pred"]).sum()
+        print(f"\nконтроль: {len(control)} пар, дублей {dups}, пропущено {missed}")
 
     rev_name = re.sub(r"\W+", "_", args.rev or "worktree")
-    save_errors(df, f"data/eval/dedupe_errors_{args.gold}_{rev_name}.csv")
+    save_errors(pd.concat([df, control]), f"data/eval/dedupe_errors_{args.gold}_{rev_name}.csv")
 
 
 if __name__ == "__main__":
